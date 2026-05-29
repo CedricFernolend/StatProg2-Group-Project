@@ -6,25 +6,117 @@ editor: visual
 
 # Dataset Research
 
-### Lebensziele, Persönlichkeitsmerkmale und Erfolg von Studierenden verschiedener Fächergruppen
+## Lebensziele, Persönlichkeitsmerkmale und Erfolg von Studierenden verschiedener Fächergruppen
 
 <https://search.gesis.org/research_data/SDN-10.7802-1763>
 
-### Auswahlverfahren an deutschen Hochschulen
+## Auswahlverfahren an deutschen Hochschulen
 
 <https://search.gesis.org/research_data/SDN-10.7802-2292>
 
-### Mental Health Care in the Last 4 Weeks, US only, possible Covid 19 impact questions
+## Mental Health Care in the Last 4 Weeks, US only, possible Covid 19 impact questions
 
 <https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks?from_hint=eyJzb3J0IjoicG9wdWxhcml0eSJ9>
 
 ```{r}
 library(readr)
+library(dplyr)
+library(ggplot2)
 data <- read_csv("Mental_Health_Care_in_the_Last_4_Weeks.csv")
-
 head(data)
 ```
 
-### Data about dogs
+Each row reports one estimate: the percentage of US adults who, in the last 4 weeks, took a given mental-health-care action for a particular subgroup, geography and time period.
+
+The key columns are:
+
+-   `Indicator` (which action)
+-   `Group`/`Subgroup` (which population is being described)
+-   `State`
+-   `Time Period` columns (when)
+-   `Value` with its `LowCI`/`HighCI` confidence interval.
+
+```{r}
+print("== Overall shape ==")
+dim(data)
+print("== Indicators ==")
+unique(data$Indicator)
+print("== Population Dimensions ==")
+unique(data$Group)
+print("== How many time periods and geographies are covered ==")
+length(unique(data$`Time Period`))
+length(unique(data$State))
+# Parse the start date into a real Date so we can plot over time
+data <- data |>
+  mutate(start_date = as.Date(`Time Period Start Date`, format = "%m/%d/%Y"))
+range(data$start_date, na.rm = TRUE)
+print("== Missing values: estimates suppressed for reliability reasons ==")
+sum(is.na(data$Value))
+```
+
+```{r}
+national <- data |>
+  filter(Group == "National Estimate", State == "United States") |>
+  filter(!is.na(Value))
+ggplot(national, aes(x = start_date, y = Value, colour = Indicator)) +
+  geom_line() +
+  geom_point(size = 1) +
+  labs(
+    title = "US mental health care use, last 4 weeks (national estimate)",
+    x = "Survey period (start date)",
+    y = "Percent of adults",
+    colour = NULL
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(colour = guide_legend(nrow = 4))
+```
+
+```{r}
+by_sex <- data |>
+  filter(
+    Group == "By Sex",
+    State == "United States",
+    Indicator == "Received Counseling or Therapy, Last 4 Weeks",
+    !is.na(Value)
+  )
+ggplot(by_sex, aes(x = start_date, y = Value, colour = Subgroup)) +
+  geom_line() +
+  geom_point(size = 1) +
+  labs(
+    title = "Received counseling or therapy, by sex",
+    x = "Survey period (start date)",
+    y = "Percent of adults",
+    colour = NULL
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+### Source and licence
+
+The data comes from the **U.S. Census Bureau's Household Pulse Survey**, published by the **National Center for Health Statistics (NCHS / CDC)** and distributed through [data.gov](https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks). The Household Pulse Survey is an experimental survey launched in 2020 to measure the social and economic impact of the COVID-19 pandemic on US households. As a work of the US federal government it is in the **public domain** (U.S. Government Work / no copyright), so it is free to use, redistribute and analyse with attribution to the source.
+
+### What is in it
+
+**Key variables:**
+
+-   `Indicator` one of four actions (received counseling, needed but did not get counseling, took prescription medication, or medication and/or counseling).
+-   `Group` / `Subgroup` how the population is split (Sex, Age, Race/Hispanic ethnicity, Education, Disability status, Sexual orientation, Gender identity, State, or the overall National Estimate).
+-   `State` geography of the estimate.
+-   `Time Period*` the survey window (number, label, start and end dates).
+-   `Value`, `LowCI`, `HighCI` the estimated percentage and its 95% confidence interval.
+-   `Suppression Flag` marks estimates withheld for being statistically unreliable.
+
+### Research questions
+
+1.  **Descriptive**
+    -   Track each indicator's national value across the Aug 2020 – Dec 2021 window to see whether counseling, medication and unmet need rose, fell or stayed flat.
+2.  **Exploratory**
+    -   Compare values across sex, age, race/ethnicity and education to see which subgroups consistently report higher unmet need ("needed counseling but did not get it") or higher care use.
+3.  **Exploratory/causal**
+    -   Using the "By Presence of Symptoms of Anxiety/Depression" group, compare care use between those with and without symptoms.
+
+# Data about dogs
 
 needs access :( <https://data.dogagingproject.org/Index>
