@@ -1,0 +1,30 @@
+---
+title: "Dataset Research"
+format: html
+editor: visual
+---
+
+# Dataset Research
+
+### Lebensziele, Persönlichkeitsmerkmale und Erfolg von Studierenden verschiedener Fächergruppen
+
+<https://search.gesis.org/research_data/SDN-10.7802-1763>
+
+### Auswahlverfahren an deutschen Hochschulen
+
+<https://search.gesis.org/research_data/SDN-10.7802-2292>
+
+### Mental Health Care in the Last 4 Weeks, US only, possible Covid 19 impact questions
+
+<https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks?from_hint=eyJzb3J0IjoicG9wdWxhcml0eSJ9>
+
+```{r}
+library(readr)
+data <- read_csv("Mental_Health_Care_in_the_Last_4_Weeks.csv")
+
+head(data)
+```
+
+### Data about dogs
+
+needs access :( <https://data.dogagingproject.org/Index>
