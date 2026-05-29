@@ -22,6 +22,8 @@ editor: visual
 library(readr)
 library(dplyr)
 library(ggplot2)
+library(esquisse)
+
 data <- read_csv("Mental_Health_Care_in_the_Last_4_Weeks.csv")
 head(data)
 ```
@@ -52,6 +54,22 @@ data <- data |>
 range(data$start_date, na.rm = TRUE)
 print("== Missing values: estimates suppressed for reliability reasons ==")
 sum(is.na(data$Value))
+
+```
+
+**Highest average for percentage subgroups for all indicators:**
+
+```{r}
+for (ind in unique(data$Indicator)) {
+  data |>
+    filter(Indicator == ind, !is.na(Value)) |>
+    group_by(Subgroup) |>
+    summarize(avg = mean(Value, na.rm = TRUE), n = n(), .groups = "drop") |>
+    arrange(desc(avg)) |>
+    head(10)|>
+    print()
+}
+
 ```
 
 ```{r}
@@ -80,11 +98,30 @@ by_sex <- data |>
     Indicator == "Received Counseling or Therapy, Last 4 Weeks",
     !is.na(Value)
   )
+by_age_medication <- data |>
+  filter(
+    Group == "By Age",
+    State == "United States",
+    Indicator == "Took Prescription Medication for Mental Health, Last 4 Weeks",
+    !is.na(Value)
+  )
 ggplot(by_sex, aes(x = start_date, y = Value, colour = Subgroup)) +
   geom_line() +
   geom_point(size = 1) +
   labs(
     title = "Received counseling or therapy, by sex",
+    x = "Survey period (start date)",
+    y = "Percent of adults",
+    colour = NULL
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+ggplot(by_age_medication, aes(x = start_date, y = Value, colour = Subgroup)) +
+  geom_line() +
+  geom_point(size = 1) +
+  labs(
+    title = "Took Prescription Medication for Mental Health, by Age",
     x = "Survey period (start date)",
     y = "Percent of adults",
     colour = NULL
