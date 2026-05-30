@@ -1,18 +1,8 @@
 ---
-title: "Dataset Research"
+title: "Mental Health last 4 weeks"
 format: html
 editor: visual
 ---
-
-# Dataset Research
-
-## Lebensziele, Persönlichkeitsmerkmale und Erfolg von Studierenden verschiedener Fächergruppen
-
-<https://search.gesis.org/research_data/SDN-10.7802-1763>
-
-## Auswahlverfahren an deutschen Hochschulen
-
-<https://search.gesis.org/research_data/SDN-10.7802-2292>
 
 ## Mental Health Care in the Last 4 Weeks, US only, possible Covid 19 impact questions
 
@@ -24,7 +14,7 @@ library(dplyr)
 library(ggplot2)
 library(esquisse)
 
-data <- read_csv("Mental_Health_Care_in_the_Last_4_Weeks.csv")
+data <- read_csv("../Data/Mental_Health_Care_in_the_Last_4_Weeks.csv")
 head(data)
 ```
 
@@ -153,7 +143,3 @@ The data comes from the **U.S. Census Bureau's Household Pulse Survey**, publish
     -   Compare values across sex, age, race/ethnicity and education to see which subgroups consistently report higher unmet need ("needed counseling but did not get it") or higher care use.
 3.  **Exploratory/causal**
     -   Using the "By Presence of Symptoms of Anxiety/Depression" group, compare care use between those with and without symptoms.
-
-# Data about dogs
-
-needs access :( <https://data.dogagingproject.org/Index>

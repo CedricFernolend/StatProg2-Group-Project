@@ -1,0 +1,32 @@
+---
+title: "Auswahlverfahren an deutschen Hochschulen"
+format: html
+editor: visual
+---
+
+## Auswahlverfahren an deutschen Hochschulen
+
+<https://search.gesis.org/research_data/SDN-10.7802-2292>
+
+### Source and licence
+
+//TODO
+
+### What is in it
+
+**General Information:**
+
+//TODO
+
+**Key variables:**
+
+//TODO
+
+### Research questions
+
+1.  **Descriptive**
+    -   //TODO
+2.  **Exploratory**
+    -   //TODO
+3.  **Exploratory/causal**
+    -   //TODO
