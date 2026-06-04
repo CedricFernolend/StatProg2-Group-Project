@@ -178,3 +178,57 @@ For packages, we mainly plan to use tidyverse for data cleaning and plots, and l
 For Git, we will use one shared GitHub repository. Each group member can work on their own branch or on a branch for a specific task, such as data cleaning, plots, or writing. Before adding work to the main branch, we will check that the code runs and that the Quarto document still works.
 
 In .gitignore, we will exclude files that do not need to be shared, such as .Rhistory, .RData, temporary files, secret files like .env, and large output files. We will only keep files in Git that are useful for understanding and reproducing the project.
+
+## NOTES
+
+bottom three lines of the regression
+
+-   Multiple R-squared is 0.007, meaning the four predictors together explain about 0.7% of the variation in Delay_Days.
+
+-   The adjusted R-squared is actually *negative* (-0.0019), which is what happens when predictors add no real information beyond noise.
+
+-   overall F-test p-value is 0.63
+
+-   not a single predictor is significant: the smallest p-value among them is 0.19 (Product_CategoryFood). The only significant term is the intercept, which just tells you the average delay is around 2 days.
+
+```{r}
+# Keep only numeric columns
+num_data <- supply_data %>% select(where(is.numeric))
+
+# Correlation matrix (pairwise to tolerate any NAs)
+cor_mat <- cor(num_data, use = "pairwise.complete.obs")
+round(cor_mat, 2)
+
+# Turn the matrix into a sorted list of pairs
+cor_pairs <- as.data.frame(as.table(cor_mat)) %>%
+  filter(Var1 != Var2) %>%
+  mutate(abs_cor = abs(Freq)) %>%
+  arrange(desc(abs_cor)) %>%
+  distinct(abs_cor, .keep_all = TRUE)   # drop mirror duplicates
+
+# Keep only the upper triangle so it mirrors corrplot's type = "upper"
+cor_upper <- cor_mat
+cor_upper[lower.tri(cor_upper)] <- NA
+
+# Reshape the matrix to long format (Var1, Var2, correlation)
+cor_long <- as.data.frame(as.table(cor_upper)) %>%
+  rename(corr = Freq) %>%
+  filter(!is.na(corr))
+
+ggplot(cor_long, aes(x = Var2, y = Var1, fill = corr)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = sprintf("%.2f", corr)), size = 2.5) +
+  scale_fill_gradient2(
+    low = "#B2182B", mid = "white", high = "#2166AC",
+    midpoint = 0, limits = c(-1, 1), name = "Correlation"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 8),
+    panel.grid = element_blank()
+  ) +
+  labs(x = NULL, y = NULL, title = "Correlation matrix")
+```
+
+Seems like there is hardly any correlation in the numerical values except for the supply Risk Flag. Needs further checking with categorial data.
