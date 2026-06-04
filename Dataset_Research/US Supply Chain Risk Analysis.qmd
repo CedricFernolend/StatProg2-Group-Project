@@ -56,7 +56,7 @@ library(ggplot2)
 library(readr)
 library(dplyr)
 
-supply_data <- read_csv("/Users/pei.l/Documents/26 SS/Advanced R/group-project/data.csv")
+supply_data <- read_csv("../Data/US_supply_chain_data.csv")
 glimpse(supply_data)
 ```
 
