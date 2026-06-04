@@ -232,3 +232,55 @@ ggplot(cor_long, aes(x = Var2, y = Var1, fill = corr)) +
 ```
 
 Seems like there is hardly any correlation in the numerical values except for the supply Risk Flag. Needs further checking with categorial data.
+
+```{r}
+library(lubridate)
+
+supply_data <- supply_data %>%
+  mutate(
+    days_to_dispatch  = as.numeric(Dispatch_Date - Order_Date),
+    days_to_delivery  = as.numeric(Delivery_Date - Dispatch_Date),
+    total_lead_time   = as.numeric(Delivery_Date - Order_Date)
+  )
+
+# Re-run the numeric correlation scan including these
+supply_data %>%
+  select(where(is.numeric)) %>%
+  cor(use = "pairwise.complete.obs") %>%
+  round(2)
+
+# Does mean delay differ by category?
+summary(aov(Delay_Days ~ Shipping_Mode, data = supply_data))
+summary(aov(Delay_Days ~ Product_Category, data = supply_data))
+
+# Group means to eyeball effect sizes
+supply_data %>%
+  group_by(Shipping_Mode) %>%
+  summarise(mean_delay = mean(Delay_Days), n = n())
+
+```
+
+```{r}
+# Is the flag informative, and is it plausibly known in advance?
+supply_data %>%
+  group_by(Supply_Risk_Flag) %>%
+  summarise(mean_delay = mean(Delay_Days),
+            median_delay = median(Delay_Days),
+            n = n())
+
+all(supply_data$Supply_Risk_Flag == as.integer(supply_data$Delay_Days > 0))
+```
+
+==Risk_Fag is allways 1 when there was any delay and allways 0 if there has been 0 delay! not known before parameter!!==
+
+```{r}
+#predict delay from what we actually have up front
+new_model <- lm(
+  Delay_Days ~ Supplier_Reliability_Score + Historical_Disruption_Count +
+    Shipping_Mode + Product_Category + Quantity_Ordered + Order_Value_USD,
+  data = supply_data
+)
+summary(new_model)
+```
+
+R² = 0.008, adjusted R² = −0.003, F-test p = 0.71. ==\> No relevant correlation
