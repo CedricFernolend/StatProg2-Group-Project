@@ -1,0 +1,180 @@
+---
+title: "US Supply Chain Risk Analysis"
+format: html
+editor: visual
+---
+
+# **US Supply Chain Risk Analysis Dataset**
+
+Real-world logistics data with disruption analysis for ML research
+
+<https://www.kaggle.com/datasets/yuanchunhong/us-supply-chain-risk-analysis-dataset>
+
+## Dataset & research questions
+
+### Source and licence
+
+This dataset was obtained from Kaggle and is titled US Supply Chain Risk Analysis Dataset. The dataset was created by DataMaverick (yuanchunhong). According to the Kaggle description, it contains U.S. supply chain transaction data from 2023–2024 and is designed for analyzing logistics disruptions, supplier reliability, transportation modes, order delays, and overall supply chain risks. The dataset is released under the CC0: Public Domain license, which allows it to be freely used, modified, and analyzed for research and other purposes.
+
+### What is in it
+
+The dataset contains **1,000 order records** and **24 variables**. Each row represents one supply chain transaction, covering the process from order placement to dispatch and delivery. The main variables include:
+
+Order information: `Order_ID`, `Buyer_ID`, `Supplier_ID`\
+Product and quantity: `Product_Category`, `Quantity_Ordered`\
+Date variables: `Order_Date`, `Dispatch_Date`, `Delivery_Date`\
+Shipping information: `Shipping_Mode`\
+Order value and delay: `Order_Value_USD`, `Delay_Days`\
+Disruption information: `Disruption_Type`, `Disruption_Severity`\
+Supplier performance: `Historical_Disruption_Count`, `Supplier_Reliability_Score`\
+Risk and system variables: `Supply_Risk_Flag`, `Communication_Cost_MB`, `Energy_Consumption_Joules`
+
+### Research questions
+
+1.  Descriptive
+
+    How does the distribution of delivery delays differ across shipping modes?
+
+2.  Exploratory
+
+    Are higher supplier reliability scores associated with shorter delivery delays?
+
+3.  Predictive
+
+    Can we predict order delay days using supplier reliability, historical disruption count, shipping mode, and product category?
+
+### Context & target audience
+
+This project is intended for supply chain management teams, logistics analysts, and readers in operations management courses. The objective is to identify the factors associated with order delays in order to help organizations recognize high-risk transportation modes, suppliers, and types of disruptions. Ultimately, the analysis aims to support more effective cost control and risk management decisions. Suitable presentation formats include a Quarto web report, a chart-driven data story, and a concise visualization dashboard designed for business-oriented audiences.
+
+## Initial data analysis
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(readr)
+library(dplyr)
+
+supply_data <- read_csv("/Users/pei.l/Documents/26 SS/Advanced R/group-project/data.csv")
+glimpse(supply_data)
+```
+
+```{r}
+supply_data <- supply_data %>%
+  mutate(
+    Order_Date = ymd(Order_Date),
+    Dispatch_Date = ymd(Dispatch_Date),
+    Delivery_Date = ymd(Delivery_Date)
+  )
+nrow(supply_data)
+ncol(supply_data)
+```
+
+```{r}
+summary(supply_data$Delay_Days)
+summary(supply_data$Supplier_Reliability_Score)
+summary(supply_data$Historical_Disruption_Count)
+summary(supply_data$Quantity_Ordered)
+summary(supply_data$Order_Value_USD)
+```
+
+```{r}
+# Count observations by shipping mode
+supply_data %>%
+  count(Shipping_Mode)
+
+# Count observations by product category
+supply_data %>%
+  count(Product_Category)
+
+# Count observations by supply risk flag
+supply_data %>%
+  count(Supply_Risk_Flag)
+```
+
+**Plot 1: distribution of delivery delays**
+
+```{r}
+ggplot(supply_data, aes(x = Delay_Days)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "white") +
+  labs(
+    title = "Distribution of Delivery Delays",
+    x = "Delay Days",
+    y = "Number of Orders"
+  ) +
+  theme_minimal()
+```
+
+**Plot 2: delivery delays by shipping mode**
+
+```{r}
+ggplot(supply_data, aes(x = Shipping_Mode, y = Delay_Days)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(
+    title = "Delivery Delays by Shipping Mode",
+    x = "Shipping Mode",
+    y = "Delay Days"
+  ) +
+  theme_minimal()
+```
+
+**Plot 3: supplier reliability and delivery delays**
+
+```{r}
+ggplot(supply_data, aes(x = Supplier_Reliability_Score, y = Delay_Days)) +
+  geom_point(alpha = 0.5, color = "darkblue") +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(
+    title = "Supplier Reliability and Delivery Delays",
+    x = "Supplier Reliability Score",
+    y = "Delay Days"
+  ) +
+  theme_minimal()
+```
+
+**Plot 4: variables for the predictive research question**
+
+```{r}
+ggplot(supply_data, aes(x = Historical_Disruption_Count, y = Delay_Days)) +
+  geom_point(alpha = 0.5, color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(
+    title = "Historical Disruptions and Delivery Delays",
+    x = "Historical Disruption Count",
+    y = "Delay Days"
+  ) +
+  theme_minimal()
+```
+
+**Simple predictive model**
+
+```{r}
+delay_model <- lm(
+  Delay_Days ~ Supplier_Reliability_Score +
+    Historical_Disruption_Count +
+    Shipping_Mode +
+    Product_Category,
+  data = supply_data
+)
+
+summary(delay_model)
+```
+
+## Analysis plan - Outline
+
+In this project, we will use Delay_Days as the main outcome variable to investigate factors associated with supply chain delays. The explanatory variables will include Shipping_Mode, Supplier_Reliability_Score, Historical_Disruption_Count, and Product_Category. Our analysis will begin with descriptive statistics and exploratory visualizations to better understand the dataset. We will use boxplots to compare delay days across different shipping modes and scatterplots to examine the relationship between supplier reliability and delivery delays.
+
+To address the predictive aspect of the research question, we will apply a simple linear regression model, as Delay_Days is a numeric outcome variable. Before conducting the analysis, several data preparation steps will be required. Date variables such as Order_Date, Dispatch_Date, and Delivery_Date will be converted into an appropriate date format. We will also check for missing values, ensure that variables such as Shipping_Mode and Product_Category are treated as categorical variables, and identify any unusual or extreme values in Delay_Days. Several limitations should also be considered.
+
+The dataset may not fully represent all supply chains in the United States, and some important factors influencing delays may not be included in the data. Furthermore, because the dataset is observational rather than experimental, the analysis can identify associations between variables but cannot establish causal relationships.
+
+## Workflow organisation - Outline
+
+We will try to keep our code clear and consistent by following the tidyverse style. This means using readable variable names, clear indentation, and simple comments when needed. We can use styler to format our R code, and we will also agree as a group to write code in the same style.
+
+For packages, we mainly plan to use tidyverse for data cleaning and plots, and lubridate for working with dates. If necessary, we may use a few extra packages for tables or model output. We may use renv to save the package versions, so the project works on different computers.
+
+For Git, we will use one shared GitHub repository. Each group member can work on their own branch or on a branch for a specific task, such as data cleaning, plots, or writing. Before adding work to the main branch, we will check that the code runs and that the Quarto document still works.
+
+In .gitignore, we will exclude files that do not need to be shared, such as .Rhistory, .RData, temporary files, secret files like .env, and large output files. We will only keep files in Git that are useful for understanding and reproducing the project.
