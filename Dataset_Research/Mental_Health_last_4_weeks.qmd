@@ -1,62 +1,24 @@
 ---
-title: "Mental Health last 4 weeks"
+title: "Mental Health last 4 weeks — Initial Data Analysis"
 format: html
 editor: visual
 ---
 
-## Mental Health Care in the Last 4 Weeks, US only, possible Covid 19 impact questions
+> Dataset background, source/licence, research questions and analysis plan are in [Project_Proposal.qmd](Project_Proposal.qmd). This file holds the runnable initial data analysis only.
 
-<https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks?from_hint=eyJzb3J0IjoicG9wdWxhcml0eSJ9>
+<https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks>
 
-### Source and licence
-
-The data comes from the **U.S. Census Bureau's Household Pulse Survey**, published by the **National Center for Health Statistics (NCHS / CDC)** and distributed through [data.gov](https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks). The Household Pulse Survey is an experimental survey launched in 2020 to measure the social and economic impact of the COVID-19 pandemic on US households. As a work of the US federal government it is in the **public domain** (U.S. Government Work / no copyright), so it is free to use, redistribute and analyse with attribution to the source.
-
-### What is in it
-
-Each row reports one estimate: the percentage of US adults who, in the last 4 weeks, took a given mental-health-care action for a particular subgroup, geography and time period.
-
-**Key variables:**
-
--   `Indicator` one of four actions:
-    -   "Received Counseling or Therapy, Last 4 Weeks"
-    -   "Needed Counseling or Therapy But Did Not Get It, Last 4 Weeks"
-    -   "Took Prescription Medication for Mental Health, Last 4 Weeks"
-    -   "Took Prescription Medication for Mental Health And/Or Received Counseling or Therapy, Last 4 Weeks
--   `Group` / `Subgroup` how the population is split
-    -   "By Sex"
-    -   "By Age"
-    -   "National Estimate"
-    -   "By Presence of Symptoms of Anxiety/Depression"
-    -   "By Race/Hispanic ethnicity"
-    -   "By Education"
-    -   "By State"
-    -   "By Sexual orientation"
-    -   "By Disability status"
-    -   "By Gender identity"
--   `State` geography of the estimate.
--   `Time Period*` the survey window (number, label, start and end dates).
--   `Value`, `LowCI`, `HighCI` the estimated percentage and its 95% confidence interval.
--   `Suppression Flag` marks estimates withheld for being statistically unreliable.
-
-### Research questions
-
-1.  **Descriptive**
-    -   Track each indicator's national value across the Aug 2020 – Dec 2021 window to see whether counseling, medication and unmet need rose, fell or stayed flat.
-2.  **Exploratory**
-    -   Compare values across sex, age, race/ethnicity and education to see which subgroups consistently report higher unmet need ("needed counseling but did not get it") or higher care use.
-3.  **Exploratory/causal**
-    -   Using the "By Presence of Symptoms of Anxiety/Depression" group, compare care use between those with and without symptoms.
-    -   Connect with Covid Infection data for individual States / whole Country and look for relations. Higher Infection Rate =\> Higher need for Mental health support?
+## Load data
 
 ```{r}
 library(readr)
 library(dplyr)
 library(ggplot2)
-library(esquisse)
 
 data <- read_csv("../Data/Mental_Health_Care_in_the_Last_4_Weeks.csv")
 ```
+
+## Structure & summary
 
 ```{r}
 print("== Overall shape ==")
@@ -74,10 +36,9 @@ data <- data |>
 range(data$start_date, na.rm = TRUE)
 print("== Missing values: estimates suppressed for reliability reasons ==")
 sum(is.na(data$Value))
-
 ```
 
-**Highest average for percentage subgroups for all indicators:**
+Highest average percentage subgroups for each indicator:
 
 ```{r}
 for (ind in unique(data$Indicator)) {
@@ -89,8 +50,9 @@ for (ind in unique(data$Indicator)) {
     head(10)|>
     print()
 }
-
 ```
+
+## Plot — national trend over time
 
 ```{r}
 national <- data |>
@@ -109,6 +71,8 @@ ggplot(national, aes(x = start_date, y = Value, colour = Indicator)) +
   theme(legend.position = "bottom") +
   guides(colour = guide_legend(nrow = 4))
 ```
+
+## Plot — between-group comparisons
 
 ```{r}
 by_sex <- data |>
