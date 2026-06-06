@@ -1,0 +1,172 @@
+---
+title: "Project Proposal"
+subtitle: "Cedric Fernolend; Peiyue Liu"
+format: html
+editor: visual
+  markdown: 
+    wrap: 72
+---
+
+## Status: undecided between two candidate datasets
+
+We have done initial research and exploratory analysis on **two** candidate datasets and have **not yet decided which one to use** for the final project. Both are described in full below, together with the risks we have identified for each. We expect to commit to one dataset based on feedback to this proposal.
+
+In short:
+
+-   **Mental Health Care in the Last 4 Weeks** (US Census Household Pulse Survey) a time-resolved, well-documented survey dataset. Main risk: it is a collection of pre-aggregated estimates rather than individual records, which limits the modelling we can do.
+-   **US Supply Chain Risk Analysis** (Kaggle): clean, record-level transactional data with an appealing predictive framing. Main risk: our initial analysis found **essentially no signal** in the data, and the one "predictive" variable turned out to be data leakage.
+
+------------------------------------------------------------------------
+
+# Candidate 1 — Mental Health Care in the Last 4 Weeks
+
+<https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks>
+
+## 1. Dataset & research questions
+
+### Source and licence
+
+The data comes from the **U.S. Census Bureau's Household Pulse Survey**, published by the **National Center for Health Statistics (NCHS / CDC)** and distributed through [data.gov](https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks). As a work of the US federal government it is in the **public domain** (U.S. Government Work / no copyright), so it is free to use, redistribute and analyse with attribution to the source.
+
+### What is in it
+
+Each row reports **one estimate**: the percentage of US adults who, in the last 4 weeks, took a given mental-health-care action, for a particular subgroup, geography and time period.
+
+**Key variables:**
+
+-   `Indicator` — one of four actions:
+    -   "Received Counseling or Therapy, Last 4 Weeks"
+    -   "Needed Counseling or Therapy But Did Not Get It, Last 4 Weeks"
+    -   "Took Prescription Medication for Mental Health, Last 4 Weeks"
+    -   "Took Prescription Medication for Mental Health And/Or Received Counseling or Therapy, Last 4 Weeks"
+-   `Group` / `Subgroup` — how the population is split (By Sex, By Age, National Estimate, By Presence of Symptoms of Anxiety/Depression, By Race/Hispanic ethnicity, By Education, By State, By Sexual orientation, By Disability status, By Gender identity).
+-   `State` — geography of the estimate.
+-   `Time Period` — the survey window (number, label, start and end dates).
+-   `Value`, `LowCI`, `HighCI` — the estimated percentage and its 95% confidence interval.
+-   `Suppression Flag` — marks estimates withheld for being statistically unreliable.
+
+### Research questions
+
+1.  **Descriptive** — Track each indicator's national value across the Aug 2020 – Dec 2021 window to see whether counseling, medication and unmet need rose, fell or stayed flat over time.
+2.  **Exploratory** — Compare values across sex, age, race/ethnicity and education to see which subgroups consistently report higher unmet need ("needed counseling but did not get it") or higher care use.
+3.  **Exploratory / causal** — Using the "By Presence of Symptoms of Anxiety/Depression" group, compare care use between those with and without symptoms; optionally connect with COVID-19 infection data per state/country to look for relations (higher infection rate ⇒ higher need for mental-health support?).
+
+### Context and audience
+
+The analysis targets a public-health and policy-oriented audience with readers interested in how the pandemic affected access to and use of mental-health care across US population groups.
+
+## 2. Initial data analysis
+
+See [Mental_Health_last_4_weeks.qmd](Mental_Health_last_4_weeks.qmd) for the runnable code. Our exploration covers:
+
+-   `dim()` and `unique()` on the structural columns (indicators, groups, number of time periods and geographies).
+-   Parsing `Time Period Start Date` into a real `Date` and confirming the date range.
+-   Counting suppressed/missing `Value` entries (the dataset's main missingness mechanism).
+-   **Plot (trend):** national value of each indicator over the survey window.
+-   **Plot (relationship/between-group):** "Received counseling or therapy" by sex, and "Took prescription medication" by age, over time.
+
+**Data-quality observations:** values are pre-aggregated percentages with confidence intervals; some estimates are suppressed for reliability (giving `NA` values); subgroup definitions are well documented; time coverage is limited to roughly Aug 2020 – Dec 2021.
+
+## 3. Analysis plan
+
+| RQ | Variables | Approach | Cleaning / transformation | Risks |
+|------------|------------|------------|--------------------------|------------|
+| 1 (descriptive) | `Indicator`, `Value`, `start_date`, National Estimate | Time-series line plots; simple trend description | Parse dates; filter to national estimate; drop suppressed values | Short time window; experimental survey |
+| 2 (exploratory) | `Value` by `Group`/`Subgroup` | Grouped comparisons, ranked averages, faceted plots | Handle suppressed estimates; align subgroup labels | Subgroups not directly comparable; overlapping CIs |
+| 3 (exploratory/causal) | Symptom group + external COVID data | Compare care use with/without symptoms; correlate with infection data | Join external COVID dataset by state/date | Ecological fallacy; no individual-level data ⇒ no real causal claim |
+
+## Risks of Candidate 1
+
+-   **Aggregated, not record-level.** Every row is already a survey estimate, not an individual. This rules out individual-level modelling and most predictive work; we are essentially analysing pre-computed percentages.
+-   **Limited time span** (≈ Aug 2020 – Dec 2021) constrains trend analysis.
+-   Suppressed estimates introduce non-random missingness in smaller subgroups.
+
+------------------------------------------------------------------------
+
+# Candidate 2 — US Supply Chain Risk Analysis
+
+<https://www.kaggle.com/datasets/yuanchunhong/us-supply-chain-risk-analysis-dataset>
+
+## 1. Dataset & research questions
+
+### Source and licence
+
+Obtained from **Kaggle**, titled *US Supply Chain Risk Analysis Dataset*, created by DataMaverick (yuanchunhong). It contains US supply chain transaction data from 2023–2024, designed for analysing logistics disruptions, supplier reliability, transportation modes, order delays and overall supply chain risk. Released under the **CC0: Public Domain** licence.
+
+### What is in it
+
+**1,000 order records** and **24 variables**. Each row is one supply chain transaction, from order placement to dispatch and delivery. Main variables:
+
+-   Order: `Order_ID`, `Buyer_ID`, `Supplier_ID`
+-   Product/quantity: `Product_Category`, `Quantity_Ordered`
+-   Dates: `Order_Date`, `Dispatch_Date`, `Delivery_Date`
+-   Shipping: `Shipping_Mode`
+-   Value/delay: `Order_Value_USD`, `Delay_Days`
+-   Disruption: `Disruption_Type`, `Disruption_Severity`
+-   Supplier performance: `Historical_Disruption_Count`, `Supplier_Reliability_Score`
+-   Risk/system: `Supply_Risk_Flag`, `Communication_Cost_MB`, `Energy_Consumption_Joules`
+
+### Research questions
+
+1.  **Descriptive** — How does the distribution of delivery delays differ across shipping modes?
+2.  **Exploratory** — Are higher supplier reliability scores associated with shorter delivery delays?
+3.  **Predictive** — Can we predict `Delay_Days` from supplier reliability, historical disruption count, shipping mode and product category?
+
+### Context and audience
+
+Intended for supply chain management teams, logistics analysts and operations management readers. The objective is to identify factors associated with order delays to help recognise high-risk transportation modes, suppliers and disruption types, supporting cost control and risk management.
+
+## 2. Initial data analysis
+
+See [US Supply Chain Risk Analysis.qmd](US%20Supply%20Chain%20Risk%20Analysis.qmd) for the runnable code. Our exploration covers:
+
+-   `glimpse()` of the full table; `nrow()`/`ncol()`.
+-   `summary()` of `Delay_Days`, `Supplier_Reliability_Score`, `Historical_Disruption_Count`, `Quantity_Ordered`, `Order_Value_USD`.
+-   Counts by `Shipping_Mode`, `Product_Category`, `Supply_Risk_Flag`.
+-   **Plot (distribution):** histogram of `Delay_Days`.
+-   **Plot (relationship):** boxplot of delay by shipping mode; scatter of supplier reliability vs delay; scatter of historical disruptions vs delay.
+-   A numeric **correlation matrix** and ANOVA of delay by shipping mode and by product category.
+
+**Data-quality observations:**
+
+-   The numeric correlation matrix shows **almost no correlation** between any predictors and `Delay_Days`.
+-   **`Supply_Risk_Flag` is data leakage:** it is exactly `1` whenever `Delay_Days > 0` and `0` otherwise
+
+## 3. Analysis plan
+
+| RQ | Variables | Approach | Cleaning / transformation | Risks |
+|------------|------------|------------|--------------------------|------------|
+| 1 (descriptive) | `Delay_Days`, `Shipping_Mode` | Boxplots, summary stats | Parse dates; ensure categoricals as factors | Differences may be noise (see risks) |
+| 2 (exploratory) | `Supplier_Reliability_Score`, `Delay_Days` | Scatter + linear fit | Check outliers in `Delay_Days` | Near-zero association observed |
+| 3 (predictive) | `Supplier_Reliability_Score`, `Historical_Disruption_Count`, `Shipping_Mode`, `Product_Category` (+ quantity, value) | Linear regression | Exclude leakage flag; factor encoding | Model has essentially no predictive power |
+
+## Risks of Candidate 2 (serious)
+
+Our initial modelling already exposed a problem with this dataset: there is almost no relationship between the available predictors and the outcome.
+
+-   Baseline regression of `Delay_Days` on reliability, historical disruptions, shipping mode and product category: **R² ≈ 0.007**, **adjusted R² ≈ −0.002**, overall **F-test p ≈ 0.63**, and **no predictor significant** (smallest p ≈ 0.19).
+-   Expanded model adding `Quantity_Ordered` and `Order_Value_USD`: **R² ≈ 0.008**, **adjusted R² ≈ −0.003**, **F-test p ≈ 0.71**
+-   The only variable that "explains" delay, `Supply_Risk_Flag`, is **leakage**, so it must be excluded.
+-   The data appears to be **synthetic / weakly structured**: predictors look essentially independent of the target, which makes the predictive research question (RQ3) likely to fail and limits even the exploratory question.
+
+This means that, although the dataset is clean and record-level (which is attractive), the **interesting predictive story may not exist in the data**. We would need to reframe the project around describing the (lack of) structure, or abandon this dataset.
+
+------------------------------------------------------------------------
+
+# 4. Workflow organisation (applies to whichever dataset we choose)
+
+-   **Code style.** We follow the tidyverse style guide. Well use `styler` to format R code and agree as a group to write in a consistent style.
+-   **Packages & reproducibility.** `tidyverse` for cleaning and plots and `lubridate` for dates; a few extra packages may be added for tables or model output. We plan to use `renv` to pin package versions so the project runs on different machines.
+-   **Git & task division.** One shared GitHub repository. Each member works on their own or task-specific branch if needed, else (based on the small group size) well be working on diffrent files but on the same branch.
+-   **`.gitignore`.** We exclude files that need not be shared `.Rhistory`, `.RData`, temporary files, secrets such as `.env`, and large output files.
+
+------------------------------------------------------------------------
+
+# Decision and next steps
+
+We are **currently undecided**. The trade-off:
+
+-   **Candidate 1 (Mental Health)** has a meaningful real-world topic and good trend/between-group structure, but is aggregated and limits modelling depth.
+-   **Candidate 2 (Supply Chain)** has the cleaner, record-level structure we'd prefer for modelling, but our IDA shows it likely contains **no real predictive signal**, and its headline risk variable is leakage.
+
+We would welcome feedback on this choice before committing.

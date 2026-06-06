@@ -6,3 +6,9 @@ Auswahlverfahren_an_deutschen_Hochschulen_Dataset.dta
 Studie_1A.xlsx
 Studie_1B.xlsx
 Studie_2.xlsx
+
+# Quarto render artifacts
+/.quarto/
+*_files/
+*_cache/
+*.html
