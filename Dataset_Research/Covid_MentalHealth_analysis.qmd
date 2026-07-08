@@ -51,7 +51,12 @@ mh_nat <- read_mh("National Estimate", "United States") # one row per window
 cat("state x window rows:", nrow(mh),
     "| states:", n_distinct(mh$state),
     "| windows:", n_distinct(mh$win_start), "\n")
+
+cat("National Estimates:", nrow(mh_nat),
+    "| windows:", n_distinct(mh$win_start), "\n")
 ```
+
+//Todo: 51 \* 33 = 1683 but we habe 1676 obs. -\> there are a couple estimates Missing (see missing data)
 
 ## 2. COVID case rate per state, comparable across states
 
@@ -60,7 +65,7 @@ cat("state x window rows:", nrow(mh),
 Both new sources are small, official and tidy, so a short look is enough. We use only a few columns from each (the COVID file's `deaths` and `fips` go unused).
 
 | File | Columns we use | Meaning |
-|-------------------|----------------------------------|--------------------|
+|-------------------|---------------------------------|--------------------|
 | `covid_us_states_nyt.csv` | `date`, `state`, `cases` | day · US state · **cumulative** confirmed cases |
 | `us_state_population_2020.csv` | `state`, `population` | US state · 2020 resident population |
 
