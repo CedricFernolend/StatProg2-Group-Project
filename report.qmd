@@ -1,114 +1,24 @@
 ---
-title: "COVID infection rates and unmet mental-health need - core analysis"
-format: html
-editor: visual
+title: "COVID-19 infection rates and unmet mental-health need"
+author:
+  - "Cedric Fernolend"
+  - "Peiyue Liu"
+date: today
 ---
 
-> Dataset background, licences, research questions and the full analysis plan are in [Project_Proposal.qmd](Project_Proposal.qmd). This file holds the runnable core analysis that answers the two research questions.
-
-We want to know whether places affected harder by COVID also reported more unmet need for mental-health support. We measures one row per **US state** per **survey window**. The script below builds that table in three steps
-
--   the mental-health outcome
--   a comparable COVID case rate
--   join them and then answers the two research questions.
+We ask whether US states hit harder by COVID-19 also reported higher **unmet need for mental-health support**. The cleaning and joining happen in `code/01_download.R` → `code/02_clean.R`; this page loads the processed result and answers the two research questions.
 
 ```{r setup}
 #| message: false
 #| warning: false
-library(readr)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
+library(tidyverse)
+library(here)
 
-# The outcome is a single switch so the whole analysis can be re-run for a
-# different indicator (must match an Indicator value in the Household Pulse CSV).
-OUTCOME_INDICATOR <- "Needed Counseling or Therapy But Did Not Get It, Last 4 Weeks"
-```
+joined   <- read_csv(here("data", "processed", "covid_mentalhealth_joined.csv"),
+                     show_col_types = FALSE)
+national <- read_csv(here("data", "processed", "covid_mentalhealth_national.csv"),
+                     show_col_types = FALSE)
 
-## 1. Mental-health outcome: unmet need by state × survey window
-
-The Household Pulse file stores every indicator/subgroup/state/period combination in one long table. We keep only the rows we need, the chosen outcome, split *By State*, with a real value, and rename the survey-window dates to short names we will reuse everywhere. We build the same thing once at state level (for RQ1) and once at national level (for RQ2).
-
-```{r mh}
-#| message: false
-read_mh <- function(group, state_filter = NULL) {
-  d <- read_csv(here::here("data", "raw", "Mental_Health_Care_in_the_Last_4_Weeks.csv"), show_col_types = FALSE) |>
-    filter(Group == group, Indicator == OUTCOME_INDICATOR, !is.na(Value))
-  if (!is.null(state_filter)) d <- filter(d, State == state_filter)
-  d |>
-    transmute(
-      state      = State,
-      win_start  = as.Date(`Time Period Start Date`, "%m/%d/%Y"),
-      win_end    = as.Date(`Time Period End Date`,   "%m/%d/%Y"),
-      unmet_need = Value                       # % of adults reporting the outcome
-    )
-}
-
-mh     <- read_mh("By State")                          # one row per state × window
-mh_nat <- read_mh("National Estimate", "United States") # one row per window
-
-cat("state x window rows:", nrow(mh),
-    "| states:", n_distinct(mh$state),
-    "| windows:", n_distinct(mh$win_start), "\n")
-
-cat("National Estimates:", nrow(mh_nat),
-    "| windows:", n_distinct(mh$win_start), "\n")
-```
-
-//Todo: 51 \* 33 = 1683 but we habe 1676 obs. -\> there are a couple estimates Missing (see missing data)
-
-## 2. COVID case rate per state, comparable across states
-
-### What's in the two new datasets
-
-Both new sources are small, official and tidy, so a short look is enough. We use only a few columns from each (the COVID file's `deaths` and `fips` go unused).
-
-| File | Columns we use | Meaning |
-|-------------------|---------------------------------|--------------------|
-| `covid_us_states_nyt.csv` | `date`, `state`, `cases` | day · US state · **cumulative** confirmed cases |
-| `us_state_population_2020.csv` | `state`, `population` | US state · 2020 resident population |
-
-```{r new-data-overview}
-#| message: false
-pop       <- read_csv(here::here("data", "raw", "us_state_population_2020.csv"), show_col_types = FALSE)
-covid_raw <- read_csv(here::here("data", "raw", "covid_us_states_nyt.csv"), show_col_types = FALSE)
-
-glimpse(covid_raw)
-glimpse(pop)
-
-# Missing values in the columns we actually use (expect 0 in both):
-covid_raw |> summarise(across(c(date, state, cases), ~ sum(is.na(.))))
-pop       |> summarise(across(c(state, population),  ~ sum(is.na(.))))
-```
-
-**Why per 100k.** Raw case counts would just rank states by size (California will always look worst). To compare a small state with a large one we convert to **new cases per 100,000 residents**, using the population table above (US Census Bureau, 2020 Decennial Census, 50 states + DC).
-
-The NYT file reports *cumulative* cases. The quantity we actually want is *new* cases on each day, which is just today's total minus yesterday's.
-
-```{r covid}
-#| message: false
-covid_daily <- covid_raw |>
-  arrange(state, date) |>
-  mutate(new_cases = pmax(cases - lag(cases), 0), .by = state) |>  # cumulative -> daily
-  inner_join(pop, by = "state") |>
-  mutate(new_per100k = new_cases / population * 1e5)
-```
-
-## 3. Join COVID intensity into each survey window
-
-Each survey window is a date range (about two weeks). For every state we add up its daily `new_per100k` that falls inside that window. The COVID change a state experienced while that survey was running. A **range join** (`between(date, win_start, win_end)`) matches each COVID day to the window it belongs to, so no manual looping is needed.
-
-```{r join}
-covid_win <- covid_daily |>
-  inner_join(distinct(mh, state, win_start, win_end),
-             by = join_by(state, between(date, win_start, win_end))) |>
-  summarise(covid_rate = sum(new_per100k), .by = c(state, win_start, win_end))
-
-joined <- inner_join(mh, covid_win, by = c("state", "win_start", "win_end"))
-
-cat("joined rows:", nrow(joined), "\n")
-summary(joined$covid_rate)
-summary(joined$unmet_need)
 ```
 
 ## 4. RQ1: Does COVID intensity relate to unmet mental-health need?
