@@ -32,8 +32,7 @@ The Household Pulse file stores every indicator/subgroup/state/period combinatio
 ```{r mh}
 #| message: false
 read_mh <- function(group, state_filter = NULL) {
-  d <- read_csv("../Data/Mental_Health_Care_in_the_Last_4_Weeks.csv",
-                show_col_types = FALSE) |>
+  d <- read_csv(here::here("data", "raw", "Mental_Health_Care_in_the_Last_4_Weeks.csv"), show_col_types = FALSE) |>
     filter(Group == group, Indicator == OUTCOME_INDICATOR, !is.na(Value))
   if (!is.null(state_filter)) d <- filter(d, State == state_filter)
   d |>
@@ -71,8 +70,8 @@ Both new sources are small, official and tidy, so a short look is enough. We use
 
 ```{r new-data-overview}
 #| message: false
-pop       <- read_csv("../Data/us_state_population_2020.csv", show_col_types = FALSE)
-covid_raw <- read_csv("../Data/covid_us_states_nyt.csv",      show_col_types = FALSE)
+pop       <- read_csv(here::here("data", "raw", "us_state_population_2020.csv"), show_col_types = FALSE)
+covid_raw <- read_csv(here::here("data", "raw", "covid_us_states_nyt.csv"), show_col_types = FALSE)
 
 glimpse(covid_raw)
 glimpse(pop)

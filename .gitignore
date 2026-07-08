@@ -1,14 +1,12 @@
-.Rproj.user
+# R
 .Rhistory
 .RData
-.Ruserdata
-Auswahlverfahren_an_deutschen_Hochschulen_Dataset.dta
-Studie_1A.xlsx
-Studie_1B.xlsx
-Studie_2.xlsx
+.Rproj.user/
 
-# Quarto render artifacts
+# Quarto build artefacts
 /.quarto/
-*_files/
-*_cache/
-*.html
+_site/
+
+# OS
+.DS_Store
+Thumbs.db
