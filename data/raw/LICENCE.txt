@@ -1,0 +1,11 @@
+Dataset: Mental Health Care in the Last 4 Weeks (Household Pulse Survey)
+Source:  https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks
+Licence: Public domain (U.S. Government Work)
+
+Dataset: COVID-19 cases & deaths by US state
+Source:  https://github.com/nytimes/covid-19-data (us-states.csv)
+Licence: Free use with attribution, non-commercial (academic use)
+
+Dataset: US state population, 2020 Decennial Census
+Source:  US Census Bureau
+Licence: Public domain (U.S. Government Work)
