@@ -7,6 +7,14 @@ editor:
     wrap: 72
 ---
 
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+
+
 ## Decision: Mental Health × COVID-19 infection rates
 
 We have **committed to the Mental Health dataset** and dropped the US
@@ -148,6 +156,16 @@ c(rows = nrow(mh),
   windows = n_distinct(mh$`Time Period`),
   suppressed_NA = sum(is.na(mh$Value)))
 range(mh$start_date, na.rm = TRUE)
+```
+
+**Data-quality observations:** values are pre-aggregated percentages
+with\
+confidence intervals; some estimates are suppressed for reliability
+(giving `NA`);\
+subgroup definitions are well documented; coverage runs roughly Aug 2020
+– Apr 2022.
+
+```{r}
 
 #| label: proposal-ida-trend
 #| fig-cap: "National value of each mental-health indicator over Aug 2020 – Apr 2022."
@@ -160,13 +178,6 @@ mh |>
   theme(legend.position = "bottom") +
   guides(colour = guide_legend(nrow = 4))
 ```
-
-**Data-quality observations:** values are pre-aggregated percentages
-with\
-confidence intervals; some estimates are suppressed for reliability
-(giving `NA`);\
-subgroup definitions are well documented; coverage runs roughly Aug 2020
-– Apr 2022.
 
 ## 3. Analysis plan {#analysis-plan}
 
@@ -240,4 +251,3 @@ robustness, presentation and the write-up.
 "Needed Counseling or Therapy But Did Not Get It, Last 4 Weeks"). Is a
 same-window state-level comparison the right framing, or should we
 prioritise the **lag / fixed-effects** refinement
-
