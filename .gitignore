@@ -10,3 +10,6 @@ _site/
 # OS
 .DS_Store
 Thumbs.db
+
+# stray single-file render output
+*_files/

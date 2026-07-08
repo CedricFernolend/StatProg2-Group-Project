@@ -53,15 +53,7 @@ RQ1 compares states; RQ2 instead follows the *whole country* through time. We bu
 ```{r rq2}
 #| fig-cap: "Two-panel time series of national unmet mental-health need (top) and the national COVID-19 case rate (bottom), by survey window, Aug 2020 to Apr 2022. Plotting them on a shared time axis shows whether the two series rise and fall together across pandemic waves."
 #| fig-alt: "Two stacked line charts sharing an x-axis of survey-window dates from Aug 2020 to Apr 2022. Top: percent of adults with unmet mental-health need. Bottom: new COVID cases per 100k. The COVID panel shows sharp winter peaks; the unmet-need panel is comparatively flat."
-us_pop <- sum(pop$population)
-
-covid_nat <- covid_daily |>
-  inner_join(distinct(mh_nat, win_start, win_end),
-             by = join_by(between(date, win_start, win_end))) |>
-  summarise(covid_rate = sum(new_cases) / us_pop * 1e5, .by = c(win_start, win_end))
-
-mh_nat |>
-  left_join(covid_nat, by = c("win_start", "win_end")) |>
+national |>
   select(win_start,
          `Unmet need (%)`    = unmet_need,
          `COVID cases /100k` = covid_rate) |>

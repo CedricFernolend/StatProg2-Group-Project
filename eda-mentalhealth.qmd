@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-> Dataset background, source/licence, research questions and analysis plan are in [Project_Proposal.qmd](Project_Proposal.qmd). This file holds the runnable initial data analysis only.
+> Dataset background, source/licence, research questions and analysis plan are in [proposal.qmd](proposal.qmd). This file holds the runnable initial data analysis only.
 
 <https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks>
 
