@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-> Dataset background, source/licence, research questions and analysis plan are in [Project_Proposal.qmd](Project_Proposal.qmd). This file holds the runnable initial data analysis only.
+> Dataset background, source/licence, research questions and analysis plan are in [proposal.qmd](proposal.qmd). This file holds the runnable initial data analysis only.
 
 <https://catalog.data.gov/dataset/mental-health-care-in-the-last-4-weeks>
 
@@ -14,8 +14,11 @@ editor: visual
 library(readr)
 library(dplyr)
 library(ggplot2)
+library(here)
 
-data <- read_csv("../Data/Mental_Health_Care_in_the_Last_4_Weeks.csv")
+# Cleaned mental-health data (survey-window dates already parsed in 02_clean.R)
+data <- read_csv(here("data", "processed", "mental_health_clean.csv"),
+                 show_col_types = FALSE)
 ```
 
 ## Structure & summary
@@ -30,9 +33,7 @@ unique(data$Group)
 print("== How many time periods and geographies are covered ==")
 length(unique(data$`Time Period`))
 length(unique(data$State))
-# Parse the start date into a real Date so we can plot over time
-data <- data |>
-  mutate(start_date = as.Date(`Time Period Start Date`, format = "%m/%d/%Y"))
+print("== Date range (start_date parsed in cleaning) ==")
 range(data$start_date, na.rm = TRUE)
 print("== Missing values: estimates suppressed for reliability reasons ==")
 sum(is.na(data$Value))

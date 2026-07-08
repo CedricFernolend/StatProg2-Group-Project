@@ -1,0 +1,16 @@
+---
+title: "COVID-19 infection rates and unmet mental-health need"
+author:
+  - "Cedric Fernolend"
+  - "Peiyue Liu"
+date: today
+---
+
+Group project for Statistical Programming 2 (LMU, SoSe 2026).
+
+- [Proposal](proposal.qmd) — research questions, data, analysis plan
+- [Report](report.qmd) — the two research questions
+- [EDA](eda-mentalhealth.qmd) — exploratory look at the mental-health data
+
+The reproducible pipeline lives in `code/` (`01_download.R` → `02_clean.R`),
+which writes the cleaned datasets in `data/processed/`.

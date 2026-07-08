@@ -7,6 +7,14 @@ editor:
     wrap: 72
 ---
 
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+
+
 ## Decision: Mental Health × COVID-19 infection rates
 
 We have **committed to the Mental Health dataset** and dropped the US
@@ -19,8 +27,7 @@ intensity tracked the population's unmet need for mental-health support.
 Our two focused research questions and their planned outputs are in
 [Research questions](#research-questions); the assignable analysis plan
 is in [Analysis plan](#analysis-plan). The core analysis is already
-implemented and producing results in
-[Covid_MentalHealth_analysis.qmd](Covid_MentalHealth_analysis.qmd).
+implemented and producing results in [report.qmd](report.qmd).
 
 ------------------------------------------------------------------------
 
@@ -135,27 +142,42 @@ project website and a chart-driven data story.
 ## 2. Initial data analysis
 
 The **core joined analysis** (mental health x COVID) is implemented in
-[Covid_MentalHealth_analysis.qmd](Covid_MentalHealth_analysis.qmd); the
-exploratory IDA of the mental-health dataset alone is in
-[Mental_Health_last_4_weeks.qmd](Mental_Health_last_4_weeks.qmd). Our
-exploration covers:
+[report.qmd](report.qmd); the exploratory IDA of the mental-health
+dataset alone is in [eda-mentalhealth.qmd](eda-mentalhealth.qmd). A
+short version below reads the **cleaned** data produced by
+`code/02_clean.R`.
 
--   `dim()` and `unique()` on the structural columns (indicators,
-    groups, number of time periods and geographies).
--   Parsing `Time Period Start Date` into a real `Date` and confirming
-    the date range.
--   Counting suppressed/missing `Value` entries (the dataset's main
-    missingness mechanism).
--   **Plot (trend):** national value of each indicator over the survey
-    window.
--   **Plot (relationship/between-group):** "Received counseling or
-    therapy" by sex, and "Took prescription medication" by age, over
-    time.
+```{r}
+mh <- read_csv(here("data", "processed", "mental_health_clean.csv"), show_col_types = FALSE)
+
+c(rows = nrow(mh),
+  indicators = n_distinct(mh$Indicator),
+  states = n_distinct(mh$State),
+  windows = n_distinct(mh$`Time Period`),
+  suppressed_NA = sum(is.na(mh$Value)))
+range(mh$start_date, na.rm = TRUE)
+```
 
 **Data-quality observations:** values are pre-aggregated percentages
-with confidence intervals; some estimates are suppressed for reliability
-(giving `NA` values); subgroup definitions are well documented; time
-coverage is limited to roughly Aug 2020 – Dec 2021.
+with\
+confidence intervals; some estimates are suppressed for reliability
+(giving `NA`);\
+subgroup definitions are well documented; coverage runs roughly Aug 2020
+– Apr 2022.
+
+```{r}
+
+#| label: proposal-ida-trend
+#| fig-cap: "National value of each mental-health indicator over Aug 2020 – Apr 2022."
+mh |>
+  filter(Group == "National Estimate", State == "United States", !is.na(Value)) |>
+  ggplot(aes(start_date, Value, colour = Indicator)) +
+  geom_line() + geom_point(size = 1) +
+  labs(x = "Survey window start", y = "% of adults", colour = NULL) +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(colour = guide_legend(nrow = 4))
+```
 
 ## 3. Analysis plan {#analysis-plan}
 
@@ -189,15 +211,14 @@ populations; dropping suppressed estimates.
 # Considered and rejected — US Supply Chain Risk Analysis
 
 We also explored the Kaggle *US Supply Chain Risk Analysis Dataset*
-(CC0; 1,000 records, 24 variables) for a delay-prediction project — full
-IDA in [US Supply Chain Risk
-Analysis.qmd](US%20Supply%20Chain%20Risk%20Analysis.qmd). We **rejected
-it** because our initial modelling found essentially no signal:
-regressing `Delay_Days` on the available predictors gave **R² ≈ 0.007**,
-adjusted R² negative, **F-test p ≈ 0.63**, and no significant predictor;
-the only variable that "explained" delay, `Supply_Risk_Flag`, turned out
-to be **data leakage** (it is exactly `1` whenever `Delay_Days > 0`).
-The interesting predictive story simply does not exist in the data.
+(CC0; 1,000 records, 24 variables) for a delay-prediction project. We
+**rejected it** because our initial modelling found essentially no
+signal: regressing `Delay_Days` on the available predictors gave **R² ≈
+0.007**, adjusted R² negative, **F-test p ≈ 0.63**, and no significant
+predictor; the only variable that "explained" delay, `Supply_Risk_Flag`,
+turned out to be **data leakage** (it is exactly `1` whenever
+`Delay_Days > 0`). The interesting predictive story simply does not
+exist in the data.
 
 ------------------------------------------------------------------------
 

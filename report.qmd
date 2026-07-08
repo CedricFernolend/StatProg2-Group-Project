@@ -1,0 +1,73 @@
+---
+title: "COVID-19 infection rates and unmet mental-health need"
+author:
+  - "Cedric Fernolend"
+  - "Peiyue Liu"
+date: today
+---
+
+We ask whether US states hit harder by COVID-19 also reported higher **unmet need for mental-health support**. The cleaning and joining happen in `code/01_download.R` → `code/02_clean.R`; this page loads the processed result and answers the two research questions.
+
+```{r setup}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(here)
+
+joined   <- read_csv(here("data", "processed", "covid_mentalhealth_joined.csv"),
+                     show_col_types = FALSE)
+national <- read_csv(here("data", "processed", "covid_mentalhealth_national.csv"),
+                     show_col_types = FALSE)
+
+```
+
+## 4. RQ1: Does COVID intensity relate to unmet mental-health need?
+
+With one comparable pair of numbers per state-window, we fit a straight line: does unmet need go up as the COVID case rate goes up? The slope answers the question; its 95% confidence interval and p-value tell us how sure we are.
+
+```{r rq1-model}
+m1 <- lm(unmet_need ~ covid_rate, data = joined)
+summary(m1)
+
+# Population claim -> report the coefficient with its 95% CI, not just the p-value.
+cbind(estimate = coef(m1), confint(m1))
+```
+
+```{r rq1-plot}
+ggplot(joined, aes(x = covid_rate, y = unmet_need)) +
+  geom_point(alpha = 0.3, colour = "steelblue") +
+  geom_smooth(method = "lm", se = TRUE, colour = "red") +
+  labs(
+    title = "Higher COVID case rates track slightly higher unmet mental-health need",
+    subtitle = "Weak but significant positive association across US states and survey windows",
+    x = "New COVID cases per 100k during the survey window",
+    y = "% adults who needed counseling but did not get it"
+  ) +
+  theme_minimal()
+```
+
+## 5. RQ2: How did need and COVID co-move nationally over time?
+
+RQ1 compares states; RQ2 instead follows the *whole country* through time. We build a national COVID case rate the same way (total new cases in each window ÷ US population) and plot it beside national unmet need on a shared time axis, so we can see whether the two rise and fall together across pandemic waves.
+
+```{r rq2}
+#| fig-cap: "Two-panel time series of national unmet mental-health need (top) and the national COVID-19 case rate (bottom), by survey window, Aug 2020 to Apr 2022. Plotting them on a shared time axis shows whether the two series rise and fall together across pandemic waves."
+#| fig-alt: "Two stacked line charts sharing an x-axis of survey-window dates from Aug 2020 to Apr 2022. Top: percent of adults with unmet mental-health need. Bottom: new COVID cases per 100k. The COVID panel shows sharp winter peaks; the unmet-need panel is comparatively flat."
+national |>
+  select(win_start,
+         `Unmet need (%)`    = unmet_need,
+         `COVID cases /100k` = covid_rate) |>
+  pivot_longer(-win_start) |>
+  ggplot(aes(win_start, value)) +
+  geom_line(colour = "darkblue") +
+  geom_point(size = 1) +
+  facet_wrap(~name, ncol = 1, scales = "free_y") +
+  labs(title = "National unmet mental-health need and COVID case rate over time",
+       x = "Survey window start", y = NULL) +
+  theme_minimal()
+```
+
+## Notes / next steps (for the remaining weeks)
+
+-   RQ1 association is **positive and significant but weak** (see coefficient and R²). Refinements to try: a **time lag** (COVID surge → need a few weeks later) and **state fixed effects** to control for persistent between-state differences. These are presentation/robustness tasks, not new questions.
+-   The outcome is not fixed yet. `OUTCOME_INDICATOR` swaps to any single Household Pulse indicator to repeat the whole analysis; we may also broaden "need" to the **overall movement across all four indicators** or each indicator's **average percentage change** between waves, and test which framing tracks COVID most clearly.
