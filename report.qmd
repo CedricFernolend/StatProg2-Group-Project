@@ -19,11 +19,27 @@ joined   <- read_csv(here("data", "processed", "covid_mentalhealth_joined.csv"),
 national <- read_csv(here("data", "processed", "covid_mentalhealth_national.csv"),
                      show_col_types = FALSE)
 
+# National series used throughout RQ2
+rq2 <- national |>
+  arrange(win_start) |>
+  filter(!is.na(unmet_need), !is.na(covid_rate))
+
+rq2_diff <- rq2 |>
+  mutate(d_need = unmet_need - lag(unmet_need),
+         d_cov  = covid_rate - lag(covid_rate))
 ```
 
-## 4. RQ1: Does COVID intensity relate to unmet mental-health need?
+## RQ1: Does COVID intensity relate to unmet mental-health need?
 
-With one comparable pair of numbers per state-window, we fit a straight line: does unmet need go up as the COVID case rate goes up? The slope answers the question; its 95% confidence interval and p-value tell us how sure we are.
+**Question.** Across US states and survey windows, is a higher COVID-19 case rate
+associated with a higher share of adults who needed counseling but did not
+receive it?
+
+The unit of analysis is one state in one survey window
+(*n* = `r nrow(joined)`). The response is `unmet_need` (% of adults); the
+predictor is `covid_rate` (new COVID cases per 100,000 residents accumulated over
+the survey window). We estimate an ordinary least squares regression and report
+the slope with its 95% confidence interval.
 
 ```{r rq1-model}
 m1 <- lm(unmet_need ~ covid_rate, data = joined)
@@ -34,25 +50,35 @@ cbind(estimate = coef(m1), confint(m1))
 ```
 
 ```{r rq1-plot}
+#| fig-cap: "Scatter plot of unmet mental-health need against COVID case rate. Each point is one US state in one Household Pulse survey window. The fitted ordinary least squares line is shown with its 95% confidence band."
+#| fig-alt: "Scatter plot of percent of adults with unmet mental-health need on the y-axis against new COVID cases per 100k per survey window on the x-axis. Points form a wide cloud with a shallow upward-sloping regression line."
 ggplot(joined, aes(x = covid_rate, y = unmet_need)) +
   geom_point(alpha = 0.3, colour = "steelblue") +
   geom_smooth(method = "lm", se = TRUE, colour = "red") +
   labs(
     title = "Higher COVID case rates track slightly higher unmet mental-health need",
-    subtitle = "Weak but significant positive association across US states and survey windows",
+    subtitle = "Weak but statistically significant positive association across states and windows",
     x = "New COVID cases per 100k during the survey window",
     y = "% adults who needed counseling but did not get it"
   ) +
   theme_minimal()
 ```
 
-## 5. RQ2: How did need and COVID co-move nationally over time?
+## RQ2: How did need and COVID co-move nationally over time?
 
-RQ1 compares states; RQ2 instead follows the *whole country* through time. We build a national COVID case rate the same way (total new cases in each window ÷ US population) and plot it beside national unmet need on a shared time axis, so we can see whether the two rise and fall together across pandemic waves.
+**Question.** Following the country as a whole rather than comparing states, did
+national unmet need and the national COVID case rate rise and fall together
+between August 2020 and April 2022?
 
-```{r rq2}
-#| fig-cap: "Two-panel time series of national unmet mental-health need (top) and the national COVID-19 case rate (bottom), by survey window, Aug 2020 to Apr 2022. Plotting them on a shared time axis shows whether the two series rise and fall together across pandemic waves."
-#| fig-alt: "Two stacked line charts sharing an x-axis of survey-window dates from Aug 2020 to Apr 2022. Top: percent of adults with unmet mental-health need. Bottom: new COVID cases per 100k. The COVID panel shows sharp winter peaks; the unmet-need panel is comparatively flat."
+The unit of analysis is one survey window (*n* = `r nrow(rq2)`). We
+describe the relationship graphically and with three statistics: the Pearson
+product-moment and Spearman rank correlations in **levels**, and the Pearson
+correlation of **first differences**, which removes any shared level or trend
+that could otherwise generate a spurious level correlation.
+
+```{r rq2-panels}
+#| fig-cap: "Two-panel time series of national unmet mental-health need (top) and the national COVID-19 case rate (bottom), by survey window, Aug 2020 to Apr 2022, shown in their original units."
+#| fig-alt: "Two stacked line charts sharing an x-axis of survey-window dates from Aug 2020 to Apr 2022. Top: percent of adults with unmet mental-health need. Bottom: new COVID cases per 100k, showing sharp winter peaks."
 national |>
   select(win_start,
          `Unmet need (%)`    = unmet_need,
@@ -67,7 +93,134 @@ national |>
   theme_minimal()
 ```
 
-## Notes / next steps (for the remaining weeks)
+```{r rq2-standardised}
+#| fig-cap: "The same two national series, z-standardised so they share a common axis. Standardisation removes the differing units and scales, so vertical distance between the lines is directly interpretable as divergence in relative movement."
+#| fig-alt: "Line chart with survey-window dates on the x-axis and standard deviations from the mean on the y-axis. COVID case rate shows tall sharp peaks in winter 2020-21 and winter 2021-22; unmet need stays within a narrow band near the mean throughout."
+rq2 |>
+  mutate(across(c(unmet_need, covid_rate), \(x) as.numeric(scale(x)))) |>
+  select(win_start,
+         `Unmet need`      = unmet_need,
+         `COVID case rate` = covid_rate) |>
+  pivot_longer(-win_start) |>
+  ggplot(aes(win_start, value, colour = name)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1) +
+  labs(
+    title = "National unmet mental-health need and COVID case rate over time",
+    subtitle = "Both series z-standardised to share one axis",
+    x = "Survey window start",
+    y = "Standard deviations from mean",
+    colour = NULL
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+Pearson product-moment and Spearman rank correlation, first differences: window-to-window changes
+```{r rq2-metrics}
+# Levels: Pearson product-moment and Spearman rank correlation
+cor.test(rq2$unmet_need, rq2$covid_rate)
+cor(rq2$unmet_need, rq2$covid_rate, method = "spearman")
 
--   RQ1 association is **positive and significant but weak** (see coefficient and R²). Refinements to try: a **time lag** (COVID surge → need a few weeks later) and **state fixed effects** to control for persistent between-state differences. These are presentation/robustness tasks, not new questions.
--   The outcome is not fixed yet. `OUTCOME_INDICATOR` swaps to any single Household Pulse indicator to repeat the whole analysis; we may also broaden "need" to the **overall movement across all four indicators** or each indicator's **average percentage change** between waves, and test which framing tracks COVID most clearly.
+# First differences: window-to-window changes
+cor.test(rq2_diff$d_need, rq2_diff$d_cov)
+```
+Pearson product-moment and Spearman rank correlation, first differences: window-to-window changes (pre-omnicron)
+```{r rq2-omicron}
+# Is the relationship stable across the whole period, or does it break down
+# during the Omicron surge of winter 2021-22?
+pre_omicron <- rq2 |> filter(win_start < as.Date("2021-12-01"))
+
+cor.test(pre_omicron$unmet_need, pre_omicron$covid_rate)
+
+pre_omicron |>
+  mutate(d_need = unmet_need - lag(unmet_need),
+         d_cov  = covid_rate - lag(covid_rate)) |>
+  filter(!is.na(d_need)) |>
+  summarise(first_difference_r = cor(d_need, d_cov))
+```
+
+In **levels**, the association is moderate and positive: Pearson
+*r* = 0.38 (95% CI [0.05, 0.64], *p* = 0.028), with a somewhat stronger
+Spearman rank correlation of ρ = 0.53, indicating a monotonic rather than
+strictly linear relationship.
+
+In **first differences**, however, the association essentially vanishes:
+*r* = 0.05 (*p* = 0.78). 
+
+# Interpretation
+
+## RQ1
+
+The association is **positive, statistically significant, and substantively
+weak**. The slope of 5.4 × 10⁻⁴ (95% CI [3.4 × 10⁻⁴, 7.5 × 10⁻⁴], *p* < 0.001)
+implies that moving across the full observed range of case rates — from
+essentially zero to roughly 5,000 cases per 100,000 in a single window —
+corresponds to an increase in unmet need of only about **2.8 percentage points**,
+against an outcome that itself ranges from roughly 3% to 21%. The model explains
+approximately **1.6% of the variance** (R² = 0.016).
+
+The narrow confidence interval and small *p*-value should therefore not be read as
+evidence of a strong relationship. They largely reflect the **statistical power
+conferred by a large sample** (*n* = 1,676 state-window observations): with this
+many observations, even a negligible effect is estimated precisely enough to
+exclude zero. Statistical significance and practical importance diverge sharply
+here.
+
+Because the observations are **state-level aggregates**, the estimate describes a
+relationship between populations, not between individuals, and is exposed to the
+**ecological fallacy** — the pattern across states need not hold for any
+individual. The design is observational, so the coefficient is an association and
+carries no causal interpretation.
+
+## RQ2
+
+In **levels**, the correlation is moderate and positive (Pearson
+*r* = 0.38, 95% CI [0.05, 0.64], *p* = 0.028; Spearman ρ = 0.53, indicating a
+monotonic rather than strictly linear relationship). In **first differences**,
+the association essentially disappears (*r* = 0.05, *p* = 0.78).
+
+That full-period summary, however, conceals a **structural break**. Restricting
+the series to the first two pandemic waves (all windows before December 2021)
+the level correlation nearly doubles to *r* = 0.72 (*n* = 27, *p* < 0.001). Across
+2020 and most of 2021 the two series do track one another closely: unmet need
+rose and fell broadly in step with the autumn 2020 and winter 2020–21 waves.
+
+The relationship then **breaks down during the Omicron surge**. The window
+beginning 29 December 2021 recorded roughly 2,504 cases per 100,000 — about three
+times the peak of the previous winter — yet unmet need stood at 11.3%, *lower*
+than the 12.4% observed during the far smaller December 2020 wave.
+
+Two cautions apply. Excluding a period *because* it does not fit is a form of
+post-hoc selection, so *r* = 0.72 should be read as evidence that **the
+relationship is unstable across the period**, not as a better estimate of a single
+underlying association. And even pre-Omicron the first-difference correlation
+remains weak (*r* = 0.135, *p* = 0.51), so the co-movement is a matter of shared
+levels and broad trend rather than synchronized wave-by-wave changes.
+
+**Opinion:**
+By winter 2021–22 vaccination was widespread, restrictions
+were minimal, and widely-used home tests went largely unreported. A given case
+count therefore corresponded to far less societal disruption, and far less
+measured infection.
+
+# Synthesis
+
+Taken together, the two research questions show a weak but detectable signal between states and showcasing a correlated movement for the first two covid waves, which broke down at the omnicron infection surge. A possible explanation for the co-movement during the first two covid waves, could be, that the results of a surging infection rate would influence the policies regarding prevention of further outbreaks (social distance, working from home, ...). This pattern did not hold for the omnicron surge around early 2022, where restrictions became more minimal and vaccinations were widespread.
+
+# Limitations
+
+**Outcome construct.** "Needed counseling but did not get it" is a proxy, not a
+direct measure of need: it conflates underlying need with barriers to access, and
+over-represents people newly seeking support while excluding those already being
+helped. Key determinants of mental-health need (healthcare capacity, socioeconomic composition ,...) are unobserved. Most importantly, high case rates coincided with lockdowns and social distancing,
+which plausibly drove need themselves. Under that account the case rate proxies
+policy stringency and isolation, making the association indirect rather than
+causal.
+
+**Missing data.** Estimates suppressed by NCHS for unreliability are dropped.
+Suppression occurs *because* a subgroup sample was small, so the mechanism is
+**not missing at random (MNAR)**. For our used data, 7 rows (0.42%) were missing.
+
+Each observation is a whole state in one survey window, not a person. We therefore cannot tell whether the adults reporting
+unmet need are the same adults affected by COVID.
+

@@ -8,7 +8,7 @@
 
 <meta name="author" content="Cedric Fernolend">
 <meta name="author" content="Peiyue Liu">
-<meta name="dcterms.date" content="2026-07-08">
+<meta name="dcterms.date" content="2026-07-21">
 
 <title>COVID-19 infection rates and unmet mental-health need – COVID &amp; mental-health need</title>
 <style>
@@ -158,9 +158,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#rq1-does-covid-intensity-relate-to-unmet-mental-health-need" id="toc-rq1-does-covid-intensity-relate-to-unmet-mental-health-need" class="nav-link active" data-scroll-target="#rq1-does-covid-intensity-relate-to-unmet-mental-health-need">4. RQ1: Does COVID intensity relate to unmet mental-health need?</a></li>
-  <li><a href="#rq2-how-did-need-and-covid-co-move-nationally-over-time" id="toc-rq2-how-did-need-and-covid-co-move-nationally-over-time" class="nav-link" data-scroll-target="#rq2-how-did-need-and-covid-co-move-nationally-over-time">5. RQ2: How did need and COVID co-move nationally over time?</a></li>
-  <li><a href="#notes-next-steps-for-the-remaining-weeks" id="toc-notes-next-steps-for-the-remaining-weeks" class="nav-link" data-scroll-target="#notes-next-steps-for-the-remaining-weeks">Notes / next steps (for the remaining weeks)</a></li>
+  <li><a href="#rq1-does-covid-intensity-relate-to-unmet-mental-health-need" id="toc-rq1-does-covid-intensity-relate-to-unmet-mental-health-need" class="nav-link active" data-scroll-target="#rq1-does-covid-intensity-relate-to-unmet-mental-health-need">RQ1: Does COVID intensity relate to unmet mental-health need?</a></li>
+  <li><a href="#rq2-how-did-need-and-covid-co-move-nationally-over-time" id="toc-rq2-how-did-need-and-covid-co-move-nationally-over-time" class="nav-link" data-scroll-target="#rq2-how-did-need-and-covid-co-move-nationally-over-time">RQ2: How did need and COVID co-move nationally over time?</a></li>
+  <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">Interpretation</a>
+  <ul class="collapse">
+  <li><a href="#rq1" id="toc-rq1" class="nav-link" data-scroll-target="#rq1">RQ1</a></li>
+  <li><a href="#rq2" id="toc-rq2" class="nav-link" data-scroll-target="#rq2">RQ2</a></li>
+  </ul></li>
+  <li><a href="#synthesis" id="toc-synthesis" class="nav-link" data-scroll-target="#synthesis">Synthesis</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
   </ul>
 </nav>
     </div>
@@ -187,7 +193,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 8, 2026</p>
+      <p class="date">July 21, 2026</p>
     </div>
   </div>
   
@@ -209,12 +215,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>joined   <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"processed"</span>, <span class="st">"covid_mentalhealth_joined.csv"</span>),</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>national <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"processed"</span>, <span class="st">"covid_mentalhealth_national.csv"</span>),</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># National series used throughout RQ2</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>rq2 <span class="ot">&lt;-</span> national <span class="sc">|&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(win_start) <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(unmet_need), <span class="sc">!</span><span class="fu">is.na</span>(covid_rate))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>rq2_diff <span class="ot">&lt;-</span> rq2 <span class="sc">|&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">d_need =</span> unmet_need <span class="sc">-</span> <span class="fu">lag</span>(unmet_need),</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">d_cov  =</span> covid_rate <span class="sc">-</span> <span class="fu">lag</span>(covid_rate))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="rq1-does-covid-intensity-relate-to-unmet-mental-health-need" class="level2">
-<h2 class="anchored" data-anchor-id="rq1-does-covid-intensity-relate-to-unmet-mental-health-need">4. RQ1: Does COVID intensity relate to unmet mental-health need?</h2>
-<p>With one comparable pair of numbers per state-window, we fit a straight line: does unmet need go up as the COVID case rate goes up? The slope answers the question; its 95% confidence interval and p-value tell us how sure we are.</p>
+<h2 class="anchored" data-anchor-id="rq1-does-covid-intensity-relate-to-unmet-mental-health-need">RQ1: Does COVID intensity relate to unmet mental-health need?</h2>
+<p><strong>Question.</strong> Across US states and survey windows, is a higher COVID-19 case rate associated with a higher share of adults who needed counseling but did not receive it?</p>
+<p>The unit of analysis is one state in one survey window (<em>n</em> = 1676). The response is <code>unmet_need</code> (% of adults); the predictor is <code>covid_rate</code> (new COVID cases per 100,000 residents accumulated over the survey window). We estimate an ordinary least squares regression and report the slope with its 95% confidence interval.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -260,7 +276,7 @@ covid_rate   0.000543447 3.361607e-04 7.507332e-04</code></pre>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Higher COVID case rates track slightly higher unmet mental-health need"</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Weak but significant positive association across US states and survey windows"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Weak but statistically significant positive association across states and windows"</span>,</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"New COVID cases per 100k during the survey window"</span>,</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"% adults who needed counseling but did not get it"</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
@@ -270,17 +286,19 @@ covid_rate   0.000543447 3.361607e-04 7.507332e-04</code></pre>
 <pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
+<div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="report_files/figure-html/rq1-plot-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="report_files/figure-html/rq1-plot-1.png" class="img-fluid figure-img" alt="Scatter plot of percent of adults with unmet mental-health need on the y-axis against new COVID cases per 100k per survey window on the x-axis. Points form a wide cloud with a shallow upward-sloping regression line." width="672"></p>
+<figcaption>Scatter plot of unmet mental-health need against COVID case rate. Each point is one US state in one Household Pulse survey window. The fitted ordinary least squares line is shown with its 95% confidence band.</figcaption>
 </figure>
 </div>
 </div>
 </div>
 </section>
 <section id="rq2-how-did-need-and-covid-co-move-nationally-over-time" class="level2">
-<h2 class="anchored" data-anchor-id="rq2-how-did-need-and-covid-co-move-nationally-over-time">5. RQ2: How did need and COVID co-move nationally over time?</h2>
-<p>RQ1 compares states; RQ2 instead follows the <em>whole country</em> through time. We build a national COVID case rate the same way (total new cases in each window ÷ US population) and plot it beside national unmet need on a shared time axis, so we can see whether the two rise and fall together across pandemic waves.</p>
+<h2 class="anchored" data-anchor-id="rq2-how-did-need-and-covid-co-move-nationally-over-time">RQ2: How did need and COVID co-move nationally over time?</h2>
+<p><strong>Question.</strong> Following the country as a whole rather than comparing states, did national unmet need and the national COVID case rate rise and fall together between August 2020 and April 2022?</p>
+<p>The unit of analysis is one survey window (<em>n</em> = 33). We describe the relationship graphically and with three statistics: the Pearson product-moment and Spearman rank correlations in <strong>levels</strong>, and the Pearson correlation of <strong>first differences</strong>, which removes any shared level or trend that could otherwise generate a spurious level correlation.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -300,19 +318,156 @@ covid_rate   0.000543447 3.361607e-04 7.507332e-04</code></pre>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="report_files/figure-html/rq2-1.png" class="img-fluid figure-img" alt="Two stacked line charts sharing an x-axis of survey-window dates from Aug 2020 to Apr 2022. Top: percent of adults with unmet mental-health need. Bottom: new COVID cases per 100k. The COVID panel shows sharp winter peaks; the unmet-need panel is comparatively flat." width="672"></p>
-<figcaption>Two-panel time series of national unmet mental-health need (top) and the national COVID-19 case rate (bottom), by survey window, Aug 2020 to Apr 2022. Plotting them on a shared time axis shows whether the two series rise and fall together across pandemic waves.</figcaption>
+<p><img src="report_files/figure-html/rq2-panels-1.png" class="img-fluid figure-img" alt="Two stacked line charts sharing an x-axis of survey-window dates from Aug 2020 to Apr 2022. Top: percent of adults with unmet mental-health need. Bottom: new COVID cases per 100k, showing sharp winter peaks." width="672"></p>
+<figcaption>Two-panel time series of national unmet mental-health need (top) and the national COVID-19 case rate (bottom), by survey window, Aug 2020 to Apr 2022, shown in their original units.</figcaption>
 </figure>
 </div>
 </div>
 </div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>rq2 <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(unmet_need, covid_rate), \(x) <span class="fu">as.numeric</span>(<span class="fu">scale</span>(x)))) <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(win_start,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">Unmet need</span><span class="st">`</span>      <span class="ot">=</span> unmet_need,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">COVID case rate</span><span class="st">`</span> <span class="ot">=</span> covid_rate) <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>win_start) <span class="sc">|&gt;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(win_start, value, <span class="at">colour =</span> name)) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"National unmet mental-health need and COVID case rate over time"</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Both series z-standardised to share one axis"</span>,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Survey window start"</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Standard deviations from mean"</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="cn">NULL</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="report_files/figure-html/rq2-standardised-1.png" class="img-fluid figure-img" alt="Line chart with survey-window dates on the x-axis and standard deviations from the mean on the y-axis. COVID case rate shows tall sharp peaks in winter 2020-21 and winter 2021-22; unmet need stays within a narrow band near the mean throughout." width="672"></p>
+<figcaption>The same two national series, z-standardised so they share a common axis. Standardisation removes the differing units and scales, so vertical distance between the lines is directly interpretable as divergence in relative movement.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Pearson product-moment and Spearman rank correlation, first differences: window-to-window changes</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Levels: Pearson product-moment and Spearman rank correlation</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(rq2<span class="sc">$</span>unmet_need, rq2<span class="sc">$</span>covid_rate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's product-moment correlation
+
+data:  rq2$unmet_need and rq2$covid_rate
+t = 2.303, df = 31, p-value = 0.02815
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.04478712 0.64136829
+sample estimates:
+      cor 
+0.3822192 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(rq2<span class="sc">$</span>unmet_need, rq2<span class="sc">$</span>covid_rate, <span class="at">method =</span> <span class="st">"spearman"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5283984</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First differences: window-to-window changes</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(rq2_diff<span class="sc">$</span>d_need, rq2_diff<span class="sc">$</span>d_cov)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's product-moment correlation
+
+data:  rq2_diff$d_need and rq2_diff$d_cov
+t = 0.27675, df = 30, p-value = 0.7839
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.3035721  0.3922554
+sample estimates:
+       cor 
+0.05046368 </code></pre>
+</div>
+</div>
+<p>Pearson product-moment and Spearman rank correlation, first differences: window-to-window changes (pre-omnicron)</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Is the relationship stable across the whole period, or does it break down</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># during the Omicron surge of winter 2021-22?</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>pre_omicron <span class="ot">&lt;-</span> rq2 <span class="sc">|&gt;</span> <span class="fu">filter</span>(win_start <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">"2021-12-01"</span>))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(pre_omicron<span class="sc">$</span>unmet_need, pre_omicron<span class="sc">$</span>covid_rate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's product-moment correlation
+
+data:  pre_omicron$unmet_need and pre_omicron$covid_rate
+t = 5.1955, df = 25, p-value = 2.249e-05
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.4689179 0.8639802
+sample estimates:
+      cor 
+0.7205358 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>pre_omicron <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">d_need =</span> unmet_need <span class="sc">-</span> <span class="fu">lag</span>(unmet_need),</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">d_cov  =</span> covid_rate <span class="sc">-</span> <span class="fu">lag</span>(covid_rate)) <span class="sc">|&gt;</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(d_need)) <span class="sc">|&gt;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">first_difference_r =</span> <span class="fu">cor</span>(d_need, d_cov))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  first_difference_r
+               &lt;dbl&gt;
+1              0.135</code></pre>
+</div>
+</div>
+<p>In <strong>levels</strong>, the association is moderate and positive: Pearson <em>r</em> = 0.38 (95% CI [0.05, 0.64], <em>p</em> = 0.028), with a somewhat stronger Spearman rank correlation of ρ = 0.53, indicating a monotonic rather than strictly linear relationship.</p>
+<p>In <strong>first differences</strong>, however, the association essentially vanishes: <em>r</em> = 0.05 (<em>p</em> = 0.78).</p>
 </section>
-<section id="notes-next-steps-for-the-remaining-weeks" class="level2">
-<h2 class="anchored" data-anchor-id="notes-next-steps-for-the-remaining-weeks">Notes / next steps (for the remaining weeks)</h2>
-<ul>
-<li>RQ1 association is <strong>positive and significant but weak</strong> (see coefficient and R²). Refinements to try: a <strong>time lag</strong> (COVID surge → need a few weeks later) and <strong>state fixed effects</strong> to control for persistent between-state differences. These are presentation/robustness tasks, not new questions.</li>
-<li>The outcome is not fixed yet. <code>OUTCOME_INDICATOR</code> swaps to any single Household Pulse indicator to repeat the whole analysis; we may also broaden “need” to the <strong>overall movement across all four indicators</strong> or each indicator’s <strong>average percentage change</strong> between waves, and test which framing tracks COVID most clearly.</li>
-</ul>
+<section id="interpretation" class="level1">
+<h1>Interpretation</h1>
+<section id="rq1" class="level2">
+<h2 class="anchored" data-anchor-id="rq1">RQ1</h2>
+<p>The association is <strong>positive, statistically significant, and substantively weak</strong>. The slope of 5.4 × 10⁻⁴ (95% CI [3.4 × 10⁻⁴, 7.5 × 10⁻⁴], <em>p</em> &lt; 0.001) implies that moving across the full observed range of case rates — from essentially zero to roughly 5,000 cases per 100,000 in a single window — corresponds to an increase in unmet need of only about <strong>2.8 percentage points</strong>, against an outcome that itself ranges from roughly 3% to 21%. The model explains approximately <strong>1.6% of the variance</strong> (R² = 0.016).</p>
+<p>The narrow confidence interval and small <em>p</em>-value should therefore not be read as evidence of a strong relationship. They largely reflect the <strong>statistical power conferred by a large sample</strong> (<em>n</em> = 1,676 state-window observations): with this many observations, even a negligible effect is estimated precisely enough to exclude zero. Statistical significance and practical importance diverge sharply here.</p>
+<p>Because the observations are <strong>state-level aggregates</strong>, the estimate describes a relationship between populations, not between individuals, and is exposed to the <strong>ecological fallacy</strong> — the pattern across states need not hold for any individual. The design is observational, so the coefficient is an association and carries no causal interpretation.</p>
+</section>
+<section id="rq2" class="level2">
+<h2 class="anchored" data-anchor-id="rq2">RQ2</h2>
+<p>In <strong>levels</strong>, the correlation is moderate and positive (Pearson <em>r</em> = 0.38, 95% CI [0.05, 0.64], <em>p</em> = 0.028; Spearman ρ = 0.53, indicating a monotonic rather than strictly linear relationship). In <strong>first differences</strong>, the association essentially disappears (<em>r</em> = 0.05, <em>p</em> = 0.78).</p>
+<p>That full-period summary, however, conceals a <strong>structural break</strong>. Restricting the series to the first two pandemic waves (all windows before December 2021) the level correlation nearly doubles to <em>r</em> = 0.72 (<em>n</em> = 27, <em>p</em> &lt; 0.001). Across 2020 and most of 2021 the two series do track one another closely: unmet need rose and fell broadly in step with the autumn 2020 and winter 2020–21 waves.</p>
+<p>The relationship then <strong>breaks down during the Omicron surge</strong>. The window beginning 29 December 2021 recorded roughly 2,504 cases per 100,000 — about three times the peak of the previous winter — yet unmet need stood at 11.3%, <em>lower</em> than the 12.4% observed during the far smaller December 2020 wave.</p>
+<p>Two cautions apply. Excluding a period <em>because</em> it does not fit is a form of post-hoc selection, so <em>r</em> = 0.72 should be read as evidence that <strong>the relationship is unstable across the period</strong>, not as a better estimate of a single underlying association. And even pre-Omicron the first-difference correlation remains weak (<em>r</em> = 0.135, <em>p</em> = 0.51), so the co-movement is a matter of shared levels and broad trend rather than synchronized wave-by-wave changes.</p>
+<p><strong>Opinion:</strong> By winter 2021–22 vaccination was widespread, restrictions were minimal, and widely-used home tests went largely unreported. A given case count therefore corresponded to far less societal disruption, and far less measured infection.</p>
+</section>
+</section>
+<section id="synthesis" class="level1">
+<h1>Synthesis</h1>
+<p>Taken together, the two research questions show a weak but detectable signal between states and showcasing a correlated movement for the first two covid waves, which broke down at the omnicron infection surge. A possible explanation for the co-movement during the first two covid waves, could be, that the results of a surging infection rate would influence the policies regarding prevention of further outbreaks (social distance, working from home, …). This pattern did not hold for the omnicron surge around early 2022, where restrictions became more minimal and vaccinations were widespread.</p>
+</section>
+<section id="limitations" class="level1">
+<h1>Limitations</h1>
+<p><strong>Outcome construct.</strong> “Needed counseling but did not get it” is a proxy, not a direct measure of need: it conflates underlying need with barriers to access, and over-represents people newly seeking support while excluding those already being helped. Key determinants of mental-health need (healthcare capacity, socioeconomic composition ,…) are unobserved. Most importantly, high case rates coincided with lockdowns and social distancing, which plausibly drove need themselves. Under that account the case rate proxies policy stringency and isolation, making the association indirect rather than causal.</p>
+<p><strong>Missing data.</strong> Estimates suppressed by NCHS for unreliability are dropped. Suppression occurs <em>because</em> a subgroup sample was small, so the mechanism is <strong>not missing at random (MNAR)</strong>. For our used data, 7 rows (0.42%) were missing.</p>
+<p>Each observation is a whole state in one survey window, not a person. We therefore cannot tell whether the adults reporting unmet need are the same adults affected by COVID.</p>
 
 
 </section>
