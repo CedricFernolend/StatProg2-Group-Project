@@ -12,4 +12,4 @@ _site/
 Thumbs.db
 
 # stray single-file render output
-*_files/
+/*_files/
