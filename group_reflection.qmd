@@ -1,0 +1,74 @@
+---
+title: "Group Reflection"
+editor: visual
+---
+
+## Skills inventory
+
+### Functions & refactoring (W2)
+
+A small helper function, `outcome_by()`, was created in the cleaning script to produce the state-level and national outcome datasets from the same mental-health source. Reusing this function avoided repeating the filtering, missing-value removal, and variable-renaming steps. This approach worked well because the two datasets mainly differed in their group and state filters. Deciding how general the function should be was more difficult; since the project was relatively small, we kept it simple rather than building a more complex system.
+
+### Debugging (W3)
+
+The main debugging challenges came from combining datasets with different time units and structures. Mental-health observations referred to survey windows, while the COVID data contained cumulative daily counts. Dates were checked carefully, cumulative cases were converted into daily new cases with `lag()`, negative corrections were set to zero, and daily rates were summed within each survey window. The final joined dataset had a clear unit of analysis—one state in one survey window—which made later analysis easier. However, date boundaries, reporting corrections, and suppressed values were difficult to identify because they did not always produce obvious error messages.
+
+### Version control & remotes (W4)
+
+A shared GitHub repository was used for the Quarto website, R scripts, data documentation, processed outputs, and `renv` files. Having one central repository made it easier for both group members to work with the same project structure and reduced the chance of using outdated file versions. The separation between downloading, cleaning, and reporting scripts was especially useful. In reality, the workflow was simpler than a strict feature-branch workflow: most coordination happened through the shared repository while members worked on different files. More frequent small commits and clearer commit messages would have made the project history easier to understand.
+
+### Quarto websites & collaborative coding (W5)
+
+The project was presented as a Quarto website with separate pages for the proposal, exploratory data analysis, and final report. A navigation bar and shared output folder helped turn these pages into one coherent website, while code folding kept the report readable for non-technical readers. Combining text, R code, figures, captions, and figure descriptions in one document was particularly useful. Keeping internal links, file paths, rendered plots, and website output consistent after structural changes required the most attention.
+
+### R packages (W6)
+
+Most of the analysis relied on tidyverse packages for importing data, cleaning variables, joining tables, reshaping data, and producing plots. The `here` package was also used so that file paths worked from the project root instead of depending on one person's computer. This package combination made the pipeline easier to read and reproduce, while `ggplot2` supported clear visual comparisons for both research questions. Some difficulty came from learning which functions were most suitable for joins, grouped calculations, date operations, and model output.
+
+### Initial data analysis & data cleaning (W7)
+
+Initial exploration focused on the mental-health dataset's size, indicators, groups, time periods, states, date coverage, and missing values. The main cleaning pipeline then parsed survey-window dates, preserved the original data for EDA, selected the unmet-need indicator, removed suppressed outcome values, calculated daily new COVID cases, normalised them per 100,000 population, and joined them to matching survey windows. Keeping raw data unchanged and placing transformations in `02_clean.R` worked well for transparency. The most important limitation was that suppressed values were not missing at random, so dropping them was necessary but could still influence the results.
+
+### Reproducibility, open data & renv (W9)
+
+Data sources, licences, and variables were documented for the mental-health, COVID-19, and population datasets. Raw and processed data were separated conceptually, and scripts were used to reproduce the cleaned analysis files. The project also included `renv.lock` and activation files to record the package environment. These decisions made it possible to see where the data came from and how it was transformed before analysis. Full reproducibility could be improved because the mental-health data and population reference still involved manual downloading or preparation rather than a completely automated pipeline.
+
+### Analysis & inference strategies (W10)
+
+Two different analytical strategies were used. RQ1 applied ordinary least squares regression to examine the association between COVID case rates and unmet mental-health need across state-survey-window observations. RQ2 described national patterns through time-series plots, Pearson and Spearman correlations in levels, and correlations of first differences. Separating these two questions worked well because one focused on cross-state associations and the other on national change over time. Interpreting the results carefully was challenging: the RQ1 association was statistically significant but weak, the observations were aggregated at state level, and the RQ2 relationship became much weaker when first differences were examined.
+
+### Communication & visualisation (W11)
+
+Visual communication centred on a scatter plot with an OLS line and confidence interval for RQ1, plus faceted and standardised time-series plots for RQ2. Informative titles, captions, alternative text, and interpretation sections were added to make the results more accessible. The figures showed the main conclusion clearly: there was a weak positive association across state-windows, but the national relationship changed substantially over time. Avoiding an overly strong story was difficult, especially because the Omicron period did not follow the pattern from earlier COVID waves and the two national series used different scales.
+
+## Key analytical decisions
+
+### Decision 1: Choosing the final topic and outcome
+
+An early decision involved choosing between the US supply-chain dataset and the mental health × COVID-19 topic, and then choosing the main mental-health outcome. The mental-health topic was selected because the supply-chain analysis showed almost no useful signal and included data leakage in its risk flag. “Needed Counseling or Therapy But Did Not Get It, Last 4 Weeks” was chosen because it represented unmet need more directly than the other available indicators. Looking back, this was the stronger topic, although pre-specifying the exact outcome earlier would have reduced the possibility of selecting a variable after seeing results.
+
+### Decision 2: Measuring COVID intensity by survey window
+
+Another important choice was whether to use cumulative cases, daily cases, or a measure aligned with the Household Pulse survey periods. Cumulative state counts were converted into daily new cases, adjusted for population, and summed across each survey window. This measure matched the period in which respondents reported their mental-health-care experiences better than a single-day or all-pandemic measure. In hindsight, this was a reasonable solution, but robustness checks using lagged or alternative time windows would have strengthened the analysis.
+
+### Decision 3: Interpreting association rather than causation
+
+The group also had to decide whether the results should be described as causal effects or as associations. An associational interpretation was chosen because the data are state-level aggregates and important factors—including restrictions, healthcare access, socioeconomic conditions, and vaccination—were not controlled for. This reasoning shaped both the report wording and the limitations section. Earlier use of state fixed effects and planned lagged models would have improved the ability to separate stable state differences from changes over time.
+
+## Workflow & collaboration
+
+Different project components were divided between group members, including data-source research, documentation, exploratory analysis, cleaning, joined analysis, and report presentation. The shared GitHub repository and Quarto website were then used to combine and review the work. Although the proposal mentioned task-specific branches, the actual process was closer to a shared-repository workflow, where group members generally edited separate files instead of following a strict branch structure. This was practical for a two-person project, but clearer file ownership, more focused commits, and short review meetings before changing shared scripts or conclusions would improve future coordination.
+
+## LLM usage
+
+### Usage 1: Code and workflow support
+
+For code and workflow support, Claude and Codex were used to discuss possible approaches for reading data, cleaning variables, joining the COVID and mental-health datasets, and creating plots. These tools generated draft code ideas and explanations of joins, grouped calculations, and regression output. Every suggestion still needed to be checked against the actual variable names, project folders, and research design, since generic code did not automatically account for survey windows, suppressed estimates, or cumulative case counts.
+
+### Usage 2: Writing and editing support
+
+During report writing, an LLM was used to improve English phrasing, section organisation, figure captions, and explanations of statistical results. This was useful for making technical results more readable in the Quarto website. Careful editing was still needed when generated wording sounded too confident or suggested causation, because the project design only supports ecological and observational associations.
+
+### Usage 3: Reflection and interpretation support
+
+As a reflection tool, an LLM helped generate questions about limitations, robustness checks, and the difference between statistical significance and practical importance. It highlighted topics such as ecological fallacy, confounding, non-random suppression, and the value of examining first differences. These ideas were checked using the group's own results and course concepts; generated text was not treated as evidence on its own.
