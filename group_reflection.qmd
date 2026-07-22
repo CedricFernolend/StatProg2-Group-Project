@@ -7,7 +7,7 @@ editor: visual
 
 ### Functions & refactoring (W2)
 
-A small helper function, `outcome_by()`, was created in the cleaning script to produce the state-level and national outcome datasets from the same mental-health source. Reusing this function avoided repeating the filtering, missing-value removal, and variable-renaming steps. This approach worked well because the two datasets mainly differed in their group and state filters. Deciding how general the function should be was more difficult; since the project was relatively small, we kept it simple rather than building a more complex system.
+There were two script files created under /code, these files were used to clean and download the data (see Reproducibility, open data & renv). Reusing this function avoided repeating the filtering, missing-value removal, and variable-renaming steps. This approach worked well because the two datasets mainly differed in their group and state filters. Deciding how general the function should be was more difficult; since the project was relatively small, we kept it simple rather than building a more complex system. The project was refactored to fit the structure of the provided example project for the updated Proposal.
 
 ### Debugging (W3)
 
@@ -15,7 +15,7 @@ The main debugging challenges came from combining datasets with different time u
 
 ### Version control & remotes (W4)
 
-A shared GitHub repository was used for the Quarto website, R scripts, data documentation, processed outputs, and `renv` files. Having one central repository made it easier for both group members to work with the same project structure and reduced the chance of using outdated file versions. The separation between downloading, cleaning, and reporting scripts was especially useful. In reality, the workflow was simpler than a strict feature-branch workflow: most coordination happened through the shared repository while members worked on different files. More frequent small commits and clearer commit messages would have made the project history easier to understand.
+A shared GitHub repository was used for the Quarto website, R scripts, data documentation, processed outputs, and `renv` files. Having one central repository made it easier for both group members to work with the same project structure and reduced the chance of using outdated file versions. The separation between downloading, cleaning, and reporting scripts was especially useful.For some features sperated branches were created, most coordination happened through the shared repository while members worked on different files. More frequent small commits and clearer commit messages would have made the project history easier to understand. Github issues were used to track planed features and roadmap towards the final proposal.
 
 ### Quarto websites & collaborative coding (W5)
 
@@ -23,7 +23,7 @@ The project was presented as a Quarto website with separate pages for the propos
 
 ### R packages (W6)
 
-Most of the analysis relied on tidyverse packages for importing data, cleaning variables, joining tables, reshaping data, and producing plots. The `here` package was also used so that file paths worked from the project root instead of depending on one person's computer. This package combination made the pipeline easier to read and reproduce, while `ggplot2` supported clear visual comparisons for both research questions. Some difficulty came from learning which functions were most suitable for joins, grouped calculations, date operations, and model output.
+Most of the analysis relied on tidyverse packages for importing data, cleaning variables, joining tables, reshaping data, and producing plots. The `here` package was also used so that file paths worked from the project root instead of depending on one person's computer. This package combination made the pipeline easier to read and reproduce, while `ggplot2` supported clear visual comparisons for both research questions. Some difficulty came from learning which functions were most suitable for joins, grouped calculations, date operations, and model output.We did not create a own, new packing in the scope of this project.
 
 ### Initial data analysis & data cleaning (W7)
 
@@ -57,17 +57,17 @@ The group also had to decide whether the results should be described as causal e
 
 ## Workflow & collaboration
 
-Different project components were divided between group members, including data-source research, documentation, exploratory analysis, cleaning, joined analysis, and report presentation. The shared GitHub repository and Quarto website were then used to combine and review the work. Although the proposal mentioned task-specific branches, the actual process was closer to a shared-repository workflow, where group members generally edited separate files instead of following a strict branch structure. This was practical for a two-person project, but clearer file ownership, more focused commits, and short review meetings before changing shared scripts or conclusions would improve future coordination.
+Different project components were divided between group members, including data-source research, documentation, exploratory analysis, cleaning, joined analysis, and report presentation. The shared GitHub repository and Quarto website were then used to combine and review the work. Although the proposal mentioned task-specific branches, the actual process was closer to a shared-repository workflow, where a few features where implemented in branches but group members generally edited separate files instead of following a strict branch structure. This was practical for a two-person project, but clearer file ownership, more focused commits, and short review meetings before changing shared scripts or conclusions would improve future coordination.
 
 ## LLM usage
 
 ### Usage 1: Code and workflow support
 
-For code and workflow support, Claude and Codex were used to discuss possible approaches for reading data, cleaning variables, joining the COVID and mental-health datasets, and creating plots. These tools generated draft code ideas and explanations of joins, grouped calculations, and regression output. Every suggestion still needed to be checked against the actual variable names, project folders, and research design, since generic code did not automatically account for survey windows, suppressed estimates, or cumulative case counts.
+For code and workflow support, Claude and Codex were used to discuss possible approaches for reading data, cleaning variables, joining the COVID and mental-health datasets, and creating plots. These tools generated draft code ideas and explanations of joins, grouped calculations, and regression output. Every suggestion still needed to be checked against the actual variable names, project folders, and research design, since generic code did not automatically account for survey windows, suppressed estimates, or cumulative case counts. LLMs were useful in providing a alternative description for all the used graphs.
 
 ### Usage 2: Writing and editing support
 
-During report writing, an LLM was used to improve English phrasing, section organisation, figure captions, and explanations of statistical results. This was useful for making technical results more readable in the Quarto website. Careful editing was still needed when generated wording sounded too confident or suggested causation, because the project design only supports ecological and observational associations.
+During report writing, an LLM was used to improve English phrasing, section organisation, figure captions, and explanations of statistical results. This was useful for making technical results more readable in the Quarto website. Careful editing was still needed when generated wording sounded too confident or suggested causation, because the project design only supports ecological and observational associations. LLMs had problems staying inside the project scope and often overshot with automatically doing more advanced analysis.
 
 ### Usage 3: Reflection and interpretation support
 
