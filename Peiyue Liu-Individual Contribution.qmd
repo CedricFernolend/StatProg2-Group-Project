@@ -1,0 +1,40 @@
+---
+title: "Individual Contribution-Peiyue Liu"
+editor: visual
+---
+
+## Peiyue Liu — Individual Contribution Statement
+
+**Primarily responsible for:** reproducibility setup, robustness checks for RQ1, outcome-indicator comparison, data documentation, and project presentation planning.
+
+During the project, I contributed to both the analysis and the workflow organisation. One of my main tasks was to help set up `renv` so that the project could be reproduced on different machines. This included understanding the purpose of `renv::init()`, `renv::snapshot()`, and `renv::restore()`, and documenting how package versions should be restored after cloning the repository. I also contributed to the README wording for reproducibility, especially the instruction that future users should run `renv::restore()` and update `renv.lock` whenever a new package is added.
+
+For the analysis, I worked on the robustness checks for RQ1. The original model showed a weak but statistically significant positive association between COVID-19 case intensity and unmet mental-health need. To test whether this result was stable, I added a one-survey-window lag of the COVID case rate and a state fixed-effects model. The coefficient remained positive across the original model, the lagged model, the state fixed-effects model, and the combined lag plus fixed-effects model. This helped us report that the association “survives” the robustness checks, while still interpreting it cautiously as a weak observational association rather than causal evidence.
+
+I also worked on the outcome-indicator comparison. Since the proposal was not fully fixed on whether “need for mental-health support” should be measured by one indicator or a broader signal, I compared all four Household Pulse mental-health indicators. This showed that “Needed Counseling or Therapy But Did Not Get It, Last 4 Weeks” had the clearest substantive framing and the strongest model fit among the tested indicators. Based on this, I supported keeping unmet need as the main outcome rather than broadening the report to all mental-health-care indicators.
+
+Another contribution was documenting the variables and missing-value handling. I helped prepare a clear reference for the variables used from the mental-health, COVID-19, and population datasets, including their meanings and units. I also documented that suppressed Household Pulse estimates appear as missing `Value` entries and are likely not missing at random, because they are withheld for reliability reasons. In the analysis, these values are dropped with `!is.na(Value)`, while the COVID and population variables used in the model were checked for missing values.
+
+I also contributed to the final presentation planning. For the landing page task, I helped clarify that a Quarto homepage should be different from simply rendering the full analysis file. The homepage should briefly present the research question, headline finding, and links to the full analysis and documentation. This made the project more readable for an external audience and better suited for GitHub Pages.
+
+## Reflection
+
+### About the Data and Analysis
+
+When we first chose the dataset, I expected the main challenge to be statistical modelling. In practice, I learned that defining the outcome variable was just as important as fitting the model. The Household Pulse dataset contains several related mental-health indicators, but they do not all measure the same concept. For example, receiving counseling or taking medication reflects service use, while needing counseling but not receiving it reflects an unmet need. This distinction became important because our research question was not simply about mental-health treatment, but about whether pandemic intensity was associated with gaps in mental-health support.
+
+The hardest analytical decision was choosing whether to focus on one indicator or create a broader mental-health signal. A broader measure seemed attractive because it could summarise more information, but it would also be harder to interpret. After comparing the four indicators, I reasoned that the unmet-need indicator was the best choice because it had both a clear public-health meaning and a relatively stronger association with COVID case rates. This helped us commit to a more precise research question.
+
+One thing our analysis cannot answer is whether COVID-19 directly caused unmet mental-health need to increase. The data are observational and aggregated at the state level, so the results describe associations between state-level COVID intensity and state-level survey estimates. We cannot infer individual-level causation, and we cannot fully control for all confounding factors such as state policy differences, health-care access, income, or pre-existing mental-health trends.
+
+### About Workflow and Collaboration
+
+A useful part of our collaboration was dividing the work into GitHub issues. The five tasks I worked on gave me a clearer role in the project: reproducibility with `renv`, robustness checks, outcome choice, data documentation, and landing-page planning. This structure made it easier to track progress and connect individual work to the final report.
+
+The harder part was coordinating changes through GitHub, especially because this was my first time using GitHub for a collaborative coding project. We ran into problems when files could not be opened on another person’s computer because file paths were stored differently. This helped me understand the difference between direct or absolute paths and indirect or relative paths. For example, a path that works on one laptop may not work on another if it points to a user-specific folder. We solved part of this by using project-relative paths and removing unnecessary `../` path references so that files could be found from the project root.
+
+We also had moments of disagreement when choosing the dataset. Some options were technically possible but raised concerns about interpretability, usefulness, or data sensitivity. I became more aware that dataset choice is not only about whether the file can be analysed, but also about privacy, ethical sensitivity, and whether the variables support a meaningful research question. We eventually moved away from the supply-chain dataset because the initial analysis showed little signal and a key risk variable involved leakage. The Mental Health × COVID dataset was a better choice because it had a clearer public-health motivation, open and documented sources, and a more meaningful outcome.
+
+### Summary
+
+Working in a group that combined sociology and computer science perspectives also shaped how I understood the project. From the sociology side, I was more attentive to what the variables actually mean, whether the research question is socially meaningful, and how issues such as mental-health access, privacy, and data sensitivity should be interpreted carefully. From the computer science side, I learned how much the reliability of a project depends on reproducible workflows, clear file paths, Git coordination, and well-structured code. This collaboration made me realise that data analysis is strongest when technical implementation and substantive interpretation develop together. A model can produce a statistically significant result, but it still needs social context to avoid overclaiming; at the same time, a meaningful social question needs careful programming practice to become reproducible evidence. This was one of the most important lessons I took from the project.
