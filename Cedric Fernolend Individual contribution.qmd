@@ -1,0 +1,113 @@
+---
+title: "Individual Contribution — Cedric Fernolend"
+editor: visual
+format: pdf
+---
+
+## Cedric Fernolend — Individual Contribution Statement
+
+**Primarily responsible for:** repository setup and Git workflow, dataset research
+and evaluation, sourcing and integrating the COVID-19 data, the reproducible
+`code/` pipeline, the project proposal, the final report structure, and
+publication via GitHub Pages.
+
+### Repository setup and tooling
+
+created the repository and connected it to RStudio, establishing the project
+structure and version-control workflow we used throughout
+([`d4fcc75`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/d4fcc75),
+[`a55e718`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/a55e718),
+[`8ee3454`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/8ee3454)).
+Later in the project I introduced a branch-and-pull-request workflow
+
+### Dataset research and evaluation
+
+set up the dataset-research documents and investigated several candidate
+datasets, notes into Quarto files, reorganising the file tree
+([`e754d3e`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/e754d3e),
+[`05faed6`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/05faed6),
+[`956311f`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/956311f),
+[`5854271`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/5854271)).
+
+US Supply Chain candidate initial analysis and documentation
+([`3204012`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/3204012),
+[`85e50e6`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/85e50e6),
+[`71d8c88`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/71d8c88)).
+([`f562a4c`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/f562a4c)).
+
+### Initial data analysis of the mental-health dataset
+
+carried out the exploratory analysis of the Household Pulse mental-health data
+([`08a1b3e`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/08a1b3e),
+[`9daf4f4`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/9daf4f4),
+[`44c595e`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/44c595e),
+[`df51671`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/df51671)).
+
+### Project proposal
+
+wrote and iterated on the project proposal
+([`3b015b5`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/3b015b5),
+[`fd850d7`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/fd850d7),
+[`a501297`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/a501297),
+[`06de582`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/06de582)).
+When the proposal was updated, I narrowed our scope to two focused research
+questions with named outputs and documented the risks of each candidate dataset.
+
+### Sourcing and integrating the COVID-19 data
+
+When we committed to the mental-health direction, the project needed a second
+dataset that did not yet exist in the repository. I sourced state-level COVID-19
+case data from the New York Times, verified its licence, and built the linkage to
+the survey data
+([`a8d5e17`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/a8d5e17),
+[`1917614`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/1917614)).
+This required several non-obvious steps: differencing the NYT *cumulative* counts
+into daily new cases, normalising by 2020 Census population to make states
+comparable (cases per 100,000), and joining each state's daily cases into the
+correct survey window using a **range join** on the window start and end dates
+
+### Repository restructure and reproducible pipeline
+
+I migrated the project to the required course template layout and built the
+reproducible pipeline
+([`51a4ea9`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/51a4ea9))
+
+### Reproducibility with renv
+
+committed the lockfile so package versions are pinned across
+machines
+([`d1fb4d3`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/d1fb4d3),
+PR #10), including verifying that only the lockfile and activation scripts are
+tracked while the package library itself stays out of version control.This was a shared task, because we had issues with git. So I ended up uploading it.
+
+### Report structure and limitations
+
+I restructured the final report so that each research question presents only the
+question, method and outputs, with all interpretation moved into a dedicated
+section, and wrote the limitations
+([`70c03a1`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/70c03a1)).
+identifying the Omicron windows as
+high-leverage observations, and documenting the suppressed estimates as **not
+missing at random**. For RQ2 I added correlation metrics alongside the plots and
+showed that the apparent co-movement.
+
+### Publication and presentation
+
+I published the project as a Quarto website via GitHub Pages.
+([`9b69040`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/9b69040),
+[`3db7dc0`](https://github.com/CedricFernolend/StatProg2-Group-Project/commit/3db7dc0)).
+
+## Reflection
+
+The most useful lesson for me was that the hardest problems in this project were
+rarely statistical. Sourcing a second dataset that could actually be *joined* to the
+first, matching state names, aligning daily case counts to two-week survey windows,
+and normalising by population so large states did not dominate took considerably
+more thought than fitting the regression that followed.
+
+I also learned to distrust a result that looks too convenient. The supply-chain
+dataset appeared to have a strong risk predictor until we checked and found it was
+derived from the outcome itself. Later, the level correlation in RQ2 looked
+convincing until differencing showed it was largely a shared trend.
+
+Finally, restructuring the repository mid-project taught me the value of a good workflow, using branches, pull requests and issues.
